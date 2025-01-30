@@ -32,11 +32,12 @@ def create_matrix(args):
            print("peptide length: {}".format(pep_len))
            print("current binary before application: {}".format(pep_matrix[cl][pos-1:pos-1+pep_len]))
            print("Current protein binary: {}".format(pep_matrix[cl]))
-           for app_pos in range(pos-1, min(pos-1+pep_len, len(pep_matrix[cl]))):
-               print("app pos: {}".format(app_pos))
-               print(len(pep_matrix[cl]))
-               if pep_matrix[cl][app_pos] == '0':
-                   pep_matrix[cl][app_pos] = '1'
+#           for app_pos in range(pos-1, min(pos-1+pep_len, len(pep_matrix[cl]))):
+#               print("app pos: {}".format(app_pos))
+#               print(len(pep_matrix[cl]))
+#               if pep_matrix[cl][app_pos] == '0':
+#                   pep_matrix[cl][app_pos] = '1'
+           pep_matrix[cl][pos-1] = '1'
 
     return pep_matrix 
 
