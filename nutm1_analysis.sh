@@ -521,10 +521,10 @@ sed 's/^/PER403	/g' >> prame_matrix_inputs.tsv
 python3 create_cta_matrix.py -i nutm1_matrix_inputs.tsv -o nutm1_matrix.tsv -l 1132
 python3 create_cta_matrix.py -i prame_matrix_inputs.tsv -o prame_matrix.tsv -l 509
 
-sed -i 's/797/TC-797/g' nutm1_matrix.tsv
-sed -i 's/797/TC-797/g' prame_matrix.tsv
+sed -i 's/^797/TC-797/g' nutm1_matrix.tsv
+sed -i 's/^797/TC-797/g' prame_matrix.tsv
 
-sed -i 's/1015/10-15/g' nutm1_matrix.tsv
-sed -i 's/1015/10-15/g' prame_matrix.tsv
+sed -i 's/^1015/10-15/g' nutm1_matrix.tsv
+sed -i 's/^1015/10-15/g' prame_matrix.tsv
 
 /share/apps/clusterapps/R-4.4.1/bin/Rscript make_heatmaps.R
