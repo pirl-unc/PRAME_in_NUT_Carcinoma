@@ -1,0 +1,6 @@
+input: '/scripts/nextflow/samplesheet_nut_healthy.csv'
+outdir: '/data/nextflow_nut_heathy_lung_RNA/'
+fasta: '/path/to/GRCh38.primary_assembly.genome.fa.gz'
+gtf: '/path/to/gencode.v46.primary_assembly.annotation.gtf.gz'
+save_reference: true
+with_umi: false
