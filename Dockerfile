@@ -27,28 +27,33 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 # add conda to the path
 ENV PATH="/opt/conda/bin:$PATH"
 
-# update conda and create the new conda environment
-RUN conda update conda 
-RUN conda create -n run-env python=3.11
-RUN echo "source activate run_env" > ~/.bashrc
+# update conda and create the new conda environment (with -y for non-interactive)
+RUN conda update -y conda 
+RUN conda create -y -n run-env python=3.11
+
+# Correctly initialize the run-env environment in .bashrc
+RUN echo 'source /opt/conda/etc/profile.d/conda.sh && conda activate run-env' >> ~/.bashrc
 
 # add new conda environment to the path
 ENV PATH="/opt/conda/envs/run-env/bin:$PATH"
 
-# activate the newly created conda run environment and install packages using pip3
+# Activate the newly created conda run environment and install packages using pip3
 RUN conda run -n run-env pip install jupyter pysam
 
 # Install Circos and its Perl dependencies
 RUN cpanm Clone Config::General Font::TTF::Font GD Math::Bezier Math::Round \
     Math::VecStat Readonly Regexp::Common SVG Set::IntSpan Statistics::Basic \
-    && wget --no-check-certificate  http://circos.ca/distribution/circos-0.69-9.tgz \
+    && wget --no-check-certificate http://circos.ca/distribution/circos-0.69-9.tgz \
     && tar xvfz circos-0.69-9.tgz \
     && mv circos-0.69-9 /opt/circos \
     && rm circos-0.69-9.tgz
 ENV PATH="/opt/circos/bin:${PATH}"
 
 # Install the necessary R packages
-RUN R -e "install.packages(c('here','ComplexHeatmap'))"
+RUN R -e "install.packages(c('here','NatParksPalettes','drc','UpSetR','circlize'), repos='https://cloud.r-project.org/')"
+# Install necessary R packages
+RUN R -e "install.packages('ComplexHeatmap')"
+
 
 # Set password for rstudio user
 RUN echo "rstudio:prame" | chpasswd
@@ -68,7 +73,7 @@ RUN echo '#!/bin/bash\n'\
 '/usr/lib/rstudio-server/bin/rserver &\n'\
 '# Start Jupyter Notebook as rstudio user\n'\
 'su - rstudio -c "source /opt/conda/etc/profile.d/conda.sh && conda activate run-env && jupyter-notebook --ip=0.0.0.0 --port=8888 --no-browser" &\n'\
-'# Keep the container running by tailing a log file or running an infinite loop\n'\
+'# Keep the container running\n'\
 'tail -f /dev/null' > /usr/local/bin/start_services.sh
 
 # Make the script executable

@@ -3,17 +3,16 @@ library(tidyr)
 library(drc)
 library(here)
 library(ggplot2)
-library(ggbeeswarm)
 
 
 # read in data ------------------------------------------------------------
 
-t2_data  <- read.csv('data/source_data/bispecific_plates/PRAME_T2_conc_gradient_20241213.txt', check.names = F, sep = '\t')
-bispecific_time_data <- read.csv('data/source_data/bispecific_plates/jeff_bispecific_20241213_luminescence.csv', check.names = F)
-conc <- read.csv('data/source_data/bispecific_plates/Bi10_endogenous.csv', check.names = F, sep=',')
+t2_data  <- read.csv('work/data/bispecific_cell_culture/PRAME_T2_peptide_pulse.txt', check.names = F, sep = '\t')
+bispecific_time_data <- read.csv('work/data/bispecific_cell_culture/nut_cell_lines_bispecific_luminescence.csv', check.names = F)
+conc <- read.csv('work/data/bispecific_cell_culture/PRAME_cytotoxicity_concentration_gradient.csv', check.names = F, sep=',')
 
 
-# Panel A Peptide required for T Cell Killing  ---------------------------
+# Panel B Peptide required for T Cell Killing  ---------------------------
 u_avg <- t2_data %>%
   filter(well_id == 'U') %>%
   summarize(average = mean(raw_val)) %>%
@@ -83,27 +82,25 @@ t2_cell_viability <- ggplot() +
         legend.position = "top",
         legend.margin = margin(-25, 0, 0, 0))
 
-#ggsave('results/bispecific/T2_norm_cell_viability_concentration.pdf', plot = t2_cell_viability,  dpi = 500)
+ggsave('work/results/bispecific/Figure5b_T2_norm_cell_viability_concentration.pdf', plot = t2_cell_viability, units = 'in', width = 4.5, height = 3.5,  dpi = 500)
 
  
 max(sample_vals_norm$norm_value)
 
 
-# Panel B Gradient Concentration ------------------------------------------
+# Panel C Cytoxicity - Concentration Concentration ------------------------------------------
 
-# pull out data that is for PRAME
-conc_filtered <- conc[ , c(1:4,6:9)]
-conc_filtered <- conc_filtered %>% mutate(Concentration = 10^seq(-8, -13, length.out = n()))
+conc <- conc %>% mutate(Concentration = 10^seq(-8, -13, length.out = n()))
 
-conc_filtered_long <- conc_filtered %>% pivot_longer(cols = -Concentration, values_to = 'normalized_cell_survival', names_to = 'cell_line')
-conc_filtered_long <- conc_filtered_long %>% mutate(cell_line = gsub('\\..*', "", conc_filtered_long$cell_line))
+conc_long <- conc %>% pivot_longer(cols = -Concentration, values_to = 'normalized_cell_survival', names_to = 'cell_line')
+conc_long <- conc_long %>% mutate(cell_line = gsub('\\_.*', "", conc_long$cell_line))
 
 
 # Fit the 4PL model to the raw data (including replicates)
 models <- drm(
   normalized_cell_survival ~ Concentration, 
   cell_line, # grouping variable, makes a model for each group provided here
-  data = conc_filtered_long, # contain concentration, measured output, and grouping variable
+  data = conc_long, # contain concentration, measured output, and grouping variable
   fct = LL.4() # type of fit, this a four parameter logistic curve
 )
 
@@ -112,15 +109,15 @@ summary(models)
 
 # Generate a sequence of concentrations to use for predictions to have smooth curves
 concentration_range <- seq(
-  min(conc_filtered_long$Concentration), 
-  max(conc_filtered_long$Concentration), 
+  min(conc_long$Concentration), 
+  max(conc_long$Concentration), 
   length.out = 100000
 )
 
 # Create a data frame for predictions
 predictions <- expand.grid(
   Concentration = concentration_range,
-  cell_line = unique(conc_filtered_long$cell_line)
+  cell_line = unique(conc_long$cell_line)
 )
 
 # Predict survival values for the fitted curves
@@ -131,7 +128,7 @@ predictions$pmax = pm[,3]
 
 # Aggregate data to calculate mean and standard deviation for each concentration and cell line
 # Will use to plot the mean point as dot and then sd as lines
-aggregated_data <- conc_filtered_long %>%
+aggregated_data <- conc_long %>%
   group_by(cell_line, Concentration) %>%
   summarize(
     mean_survival = mean(normalized_cell_survival, na.rm = TRUE),
@@ -173,9 +170,9 @@ NCI_cells_lines_plot <- ggplot() +
         legend.position = "top",
         legend.margin = margin(-25, 0, 0, 0))
   
-#ggsave('results/bispecific/NCI_celllines_norm_cell_viability_dose_titration.pdf', plot = NCI_cells_lines_plot, dpi = 500)
+ggsave('work/results/bispecific/Figure5c_NCI_celllines_norm_cell_viability_dose_titration.pdf', plot = NCI_cells_lines_plot,units = 'in', width = 4.5, height = 3.5, dpi = 500)
 
-# Panel C - Cell viability after bispecific treatment  ---------------------------------------------------
+# Panel D - NUT carcinoma Cell viability after bispecific treatment  ---------------------------------------------------
 
 # Calculate the mean and standard deviation of each "no bispecific" condition
 control_summary <- bispecific_time_data %>%
@@ -275,4 +272,4 @@ bispecific_timecourse_NC_cell_lines_plot <- ggplot(data_summary,
   ) +
   geom_hline(yintercept = 1, linetype = "dashed", color = "gray50")
 
-ggsave('results/bispecific/PRAME_bispecific_across_cell_lines_normalized.pdf', plot = bispecific_timecourse_NC_cell_lines_plot , dpi = 500)
+ggsave('work/results/bispecific/Figure5d_PRAME_bispecific_across_cell_lines_normalized.pdf', plot = bispecific_timecourse_NC_cell_lines_plot, units = 'in', width = 6.5, height = 4.5, dpi = 500)

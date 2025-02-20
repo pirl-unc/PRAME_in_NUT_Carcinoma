@@ -8,10 +8,10 @@ library(here)
 
 # load data ---------------------------------------------------------------
 # gene x sample tpm expression df
-gene_tpm_all <- read.csv('data/nextflow_scram_heathy_lung_RNA/star_salmon/salmon.merged.gene_tpm.tsv', sep = "\t", check.names = F) %>% select(-gene_id)
+gene_tpm_all <- read.csv('work/data/nextflow_nut_healthy_lung_RNA/star_salmon/salmon.merged.gene_tpm.tsv', sep = "\t", check.names = F) %>% select(-gene_id)
 
 # curated set of CTAs
-cta_df <- read.csv('data/source_data/cell_lists/cancer-testis-antigens.csv')
+cta_df <- read.csv('work/data/cell_lists/cancer-testis-antigens.csv')
 CTAs <- cta_df$Symbol
 
 # sum together genes with same names
@@ -21,7 +21,7 @@ gene_tpm_all <- gene_tpm_all %>%
   distinct(gene_name, .keep_all = TRUE)
 
 # move gene_name column to rownames
-gene_tpm_all <- gene_tpm_all %>% column_to_rownames(var='gene_name')
+gene_tpm_all <- gene_tpm_all %>% tibble::column_to_rownames(var='gene_name')
 
 # remove the Faegerberg healthy lung samples
 gene_tpm_nc <- gene_tpm_all[ , grepl('scram|PDX', colnames(gene_tpm_all))]
@@ -39,6 +39,7 @@ cell_lines <- factor(
 
 col_fun <- colorRamp2(c(0, max(gene_tpm_nc_cta_filtered)), c("blue", "red"))
 
+pdf('work/results/rna_seq/nut_cell_lines/Figure2c_nut_carcinoma_cell_lines_top_cta_expression.pdf', width = 6.5, height = 4)
 heatmap_rna_nc_cell_lines <- Heatmap(as.matrix(gene_tpm_nc_cta_filtered),
         name = 'TPM',
         col = col_fun,
@@ -50,6 +51,7 @@ heatmap_rna_nc_cell_lines <- Heatmap(as.matrix(gene_tpm_nc_cta_filtered),
         row_title_gp = gpar(fontsize = 11),
         row_names_gp = gpar(fontsize = 8, fontface = "italic"),
         column_title_gp = gpar(fontsize = 11))
+dev.off()
 
 
 

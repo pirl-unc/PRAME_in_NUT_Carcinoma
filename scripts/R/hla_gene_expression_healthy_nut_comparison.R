@@ -5,7 +5,7 @@ library(ggplot2)
 library(NatParksPalettes)
 
 # read in normalized gene x sample matrix from salmon
-hlung_nut <- read.csv('data/nextflow_nut_heathy_lung_RNA/star_salmon/salmon.merged.gene_tpm.tsv', sep = '\t')
+hlung_nut <- read.csv('work/data/nextflow_nut_healthy_lung_RNA/star_salmon/salmon.merged.gene_tpm.tsv', sep = '\t')
 hlung_nut <- hlung_nut %>% select(-gene_id)
 hlung_nut <- hlung_nut %>% select(-'PDX')
 
@@ -111,8 +111,10 @@ healthy_HLA_APM_comp <- ggplot(long_all_genes_grouped_agg, aes(x = gene_name, y 
   theme(legend.title = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1))
 
-#ggsave('results/rna_seq_figures/Fagerberg/Fagerberg_RNA_classI_APM_Healthy_Lung_NC_TPM.pdf', plot = healthy_HLA_APM_comp, dpi = 500)
+ggsave('work/results/rna_seq/Fagerberg/Figure1b_Fagerberg_RNA_classI_APM_Healthy_Lung_NC_TPM.pdf', plot = healthy_HLA_APM_comp, units = 'in', width = 6.5, height = 3.5, dpi = 500)
 
+
+# perform statistical test between the nut carcinoma cell lines and healthy lung samples
 wilcox_res <- long_all_genes_grouped %>% group_by(gene_name) %>% summarise(p.val = wilcox.test(TPM ~ group)$p.value)
 wilcox_res <- wilcox_res %>% mutate(adj.p.val = p.adjust(p.val, method = "BH"))  
 
@@ -127,3 +129,6 @@ hla_cl2_separated <- ggplot(long_CLII, aes(x = gene_name, y = log(TPM + 1), colo
   labs(title = "", x = "", y = "log(TPM + 1)") + 
   theme(legend.title = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave('work/results/rna_seq/Fagerberg/SuppFigure1_Fagerberg_RNA_classI_APM_Healthy_Lung_NC_TPM.pdf', plot = hla_cl2_separated, units = 'in', width = 6.5, height = 3.5, dpi = 500)
+

@@ -5,34 +5,12 @@ library(UpSetR)
 library(tidyr)
 
 
-# western quantification dataframe
+# MS intensity of peptides heatmap/dotplot
 
-densitometry <- data.frame(cell_line = c('10-15','10-15','14169','14169','PER403','PER403','JCM1','JCM1'),
-                           condition = rep(c('scram','NUT'), 4),
-                           PRAME_GAPDH_ratio = c(1.36, 0.078, 3.22, 2.23, 0.63, 0.16, 2.32, 0.015))
+ctas <- read.csv('work/data/cell_lists/cancer-testis-antigens.csv')
 
-densitometry$condition <- factor(densitometry$condition, levels = c("scram", "NUT"))
-
-
-ggplot(densitometry, aes(x = cell_line, y = PRAME_GAPDH_ratio, fill = condition)) +
-  geom_col(position = "dodge") + 
-  scale_fill_manual(values = c("#35b779", "#31688e"),
-                    labels = c('siRNA NUT', 'siRNA scram')) + 
-  theme_classic() +
-  labs(x = "Cell Line", y = "PRAME/GAPDH Ratio", fill = "Condition") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, color="black"),
-        legend.title = element_blank(),
-        legend.key.size = unit(0.7, "lines"),
-        legend.position = c(0.85, 0.85),
-        plot.margin = margin(7, 7, 7, 10))  
-
-
-# MS intensity of peptides
-
-ctas <- read.csv('data/source_data/cell_lists/cancer-testis-antigens.csv')
-
-ms_set1 <- read.csv('data/source_data/proteomics/cell_lines_1015_797_14169_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
-ms_set2 <- read.csv('data/source_data/proteomics/cell_lines_PER403_JCM1_PDX_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
+ms_set1 <- read.csv('work/data/shotgun_mass_spec/cell_lines_1015_797_14169_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
+ms_set2 <- read.csv('work/data/shotgun_mass_spec/cell_lines_PER403_JCM1_PDX_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
 
 
 # update NUTM1 gene name to be NUTM1 since it is currently differentiated by breakpoint but we don't need to know that for this purpose
@@ -65,9 +43,7 @@ ms_all <- ms_all %>%
     TRUE ~ Gene_ID  # Retain existing Gene_ID if no match is found
   ))
 
-# Check the result
-head(nut_peptides)
-
+head(ms_all)
 
 # convert NAs to 0's as these are peptide that were not detected
 # there are true NA in the dataset and also #N/As so need to replace both
@@ -94,6 +70,7 @@ proteins <- list(
   "PDX" = cellsPDX$Peptide_ID
 )
 
+pdf("work/results/shotgun_mass_spec/SuppFig3_MS_Peptides_Upset_plot.pdf", width = 6.5, height = 4)
 upset_plt <- upset(fromList(proteins),
                    order.by = "freq",
                    nsets = 6,
@@ -113,7 +90,7 @@ upset_plt <- upset(fromList(proteins),
                    matrix.color = 'black',
                    shade.color =  'grey',
                    text.scale = c(1.5, 1.3, 1, 1.5, 1.3, 2))
-
+dev.off()
 
 # if they are BRD3 or BRD4 peptide, only keep if the peptide matches the fusion (canonical BRD expression it not targetable)
 
@@ -155,7 +132,7 @@ cta_peptides_long <- cta_peptides_long %>%
 samples_order <- c('PER-403', '1015','14169', 'JCM1', 'TC-797', 'PDX')
 cta_peptides_long$sample <- factor(cta_peptides_long$sample, levels = samples_order)
 
-ggplot(cta_peptides_long, aes(x = factor(sample), y = Peptide_Sequence)) +
+peptide_intensity_dotplot <- ggplot(cta_peptides_long, aes(x = factor(sample), y = Peptide_Sequence)) +
   geom_point(aes(fill = log2Intensity, alpha = as.factor(alpha)), 
              shape = 21, size = 4, stroke = 1,
              show.legend = c(alpha = FALSE)) +  
@@ -172,3 +149,5 @@ ggplot(cta_peptides_long, aes(x = factor(sample), y = Peptide_Sequence)) +
         axis.text.x = element_text(size = 12, color='black'),
         axis.text.y = element_text(size = 10, color='black')) +
   labs(x = "", y = "Peptide", fill = "Log2(Intensity)")
+
+ggsave('work/results/shotgun_mass_spec/Figure4d_Peptide_intensity_dotplot_CTAs.pdf', peptide_intensity_dotplot, units = 'in', width = 6.5, height = 4.5, dpi = 500)
