@@ -5,7 +5,7 @@ library(UpSetR)
 library(tidyr)
 
 
-# MS intensity of peptides heatmap/dotplot
+# MS intensity of peptides
 
 ctas <- read.csv('work/data/cell_lists/cancer-testis-antigens.csv')
 
@@ -28,7 +28,7 @@ metadata_cols <- intersect(names(ms_set1), names(ms_set2))
 ms_all <- full_join(ms_set1, ms_set2, by = metadata_cols)
 
 
-# Update Gene_ID in nut_peptides based on Peptide_Sequence using mutate and case_when
+# Update Gene_ID in nut_peptides based on Peptide_Sequence 
 ms_all <- ms_all %>%
   mutate(Gene_ID = case_when(
     Peptide_Sequence == 'VFDPIGHF' ~ 'BRD4',
@@ -43,7 +43,9 @@ ms_all <- ms_all %>%
     TRUE ~ Gene_ID  # Retain existing Gene_ID if no match is found
   ))
 
+# Check the result
 head(ms_all)
+
 
 # convert NAs to 0's as these are peptide that were not detected
 # there are true NA in the dataset and also #N/As so need to replace both
@@ -70,7 +72,6 @@ proteins <- list(
   "PDX" = cellsPDX$Peptide_ID
 )
 
-pdf("work/results/shotgun_mass_spec/SuppFig3_MS_Peptides_Upset_plot.pdf", width = 6.5, height = 4)
 upset_plt <- upset(fromList(proteins),
                    order.by = "freq",
                    nsets = 6,
@@ -90,9 +91,9 @@ upset_plt <- upset(fromList(proteins),
                    matrix.color = 'black',
                    shade.color =  'grey',
                    text.scale = c(1.5, 1.3, 1, 1.5, 1.3, 2))
-dev.off()
 
-# if they are BRD3 or BRD4 peptide, only keep if the peptide matches the fusion (canonical BRD expression it not targetable)
+
+# if they are BRD3 or BRD4 peptide, only keep if the peptide matches the fusion (canonical BRD expression it not targettable)
 
 # PDX is BRD3, remove BRD4 peptide from it
 ms_all[ms_all$Peptide_Sequence == 'AVVSPPALHNA','PDX'] <- 0
@@ -109,6 +110,7 @@ cta_peptides <- ms_all[ms_all$Gene_ID %in% ctas, ]
 
 cta_peptides <- cta_peptides[rowSums(cta_peptides[8:13] > 0) > 0, ]
 
+cta_peptides <- cta_peptides[cta_peptides$Gene_ID != 'BRD4', ]
 
 # visualize all CTAs found
 
@@ -124,7 +126,7 @@ cta_peptides_long$log2Intensity <- log2(cta_peptides_long$intensity)
 cta_peptides_long$alpha <- ifelse(is.finite(cta_peptides_long$log2Intensity), 1, 0)
 cta_peptides_long$log2Intensity <- ifelse(is.finite(cta_peptides_long$log2Intensity), cta_peptides_long$log2Intensity, 0)
 
-gene_id_order <- c('PRAME','NUTM1','BRD4','BRD3','CTAGE1','MAGEA1','CT83','ACTL8')
+gene_id_order <- c('PRAME','NUTM1','CTAGE1','MAGEA1','CT83','ACTL8')
 cta_peptides_long$Gene_ID <- factor(cta_peptides_long$Gene_ID, levels = gene_id_order)
 cta_peptides_long <- cta_peptides_long %>%
   mutate(Peptide_Sequence = factor(Peptide_Sequence, 
@@ -132,7 +134,7 @@ cta_peptides_long <- cta_peptides_long %>%
 samples_order <- c('PER-403', '1015','14169', 'JCM1', 'TC-797', 'PDX')
 cta_peptides_long$sample <- factor(cta_peptides_long$sample, levels = samples_order)
 
-peptide_intensity_dotplot <- ggplot(cta_peptides_long, aes(x = factor(sample), y = Peptide_Sequence)) +
+ms_intensity <- ggplot(cta_peptides_long, aes(x = factor(sample), y = Peptide_Sequence)) +
   geom_point(aes(fill = log2Intensity, alpha = as.factor(alpha)), 
              shape = 21, size = 4, stroke = 1,
              show.legend = c(alpha = FALSE)) +  
@@ -150,4 +152,3 @@ peptide_intensity_dotplot <- ggplot(cta_peptides_long, aes(x = factor(sample), y
         axis.text.y = element_text(size = 10, color='black')) +
   labs(x = "", y = "Peptide", fill = "Log2(Intensity)")
 
-ggsave('work/results/shotgun_mass_spec/Figure4d_Peptide_intensity_dotplot_CTAs.pdf', peptide_intensity_dotplot, units = 'in', width = 6.5, height = 4.5, dpi = 500)

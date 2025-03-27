@@ -79,37 +79,37 @@ genelist <- colnames(df)[-(1:4)]
 
 desired_order <- c("BRD4-NUTM1", "BRD3-NUTM1", "NSD3-NUTM1", "Other")
 
-df <- df |>
+df <- df %>%
   mutate(fusion_group = ifelse(marker_name %in% c('BRD4-NUTM1','BRD3-NUTM1','NSD3-NUTM1'), marker_name, 'Other'),
          fusion_group = factor(fusion_group, levels = desired_order))
 
-fusion_diagnosis_nut <- df |>
-  filter(nut_diagnosis) |>
-  group_by(fusion_group) |>
+fusion_diagnosis_nut <- df %>% 
+  filter(nut_diagnosis) %>% 
+  group_by(fusion_group) %>% 
   summarize(nut_diagnosis_count = n(), .groups = "drop")
 
-fusion_total_counts <- df |>
-  group_by(fusion_group) |>
+fusion_total_counts <- df %>% 
+  group_by(fusion_group) %>% 
   summarize(total_samples = n(), .groups = "drop")
 
-fusion_site_summary <- df |>
-  group_by(fusion_group, primary_site) |>
+fusion_site_summary <- df %>% 
+  group_by(fusion_group, primary_site) %>% 
   summarize(primary_site_count = n(), .groups = "drop")
 
-fusion_top_sites <- fusion_site_summary |>
-  left_join(fusion_total_counts, by = "fusion_group") |> # merge total sample counts
-  left_join(fusion_diagnosis_nut, by = "fusion_group") |>  # merge top diagnosis
-  group_by(fusion_group) |>
+fusion_top_sites <- fusion_site_summary  %>% 
+  left_join(fusion_total_counts, by = "fusion_group") %>%  # merge total sample counts
+  left_join(fusion_diagnosis_nut, by = "fusion_group") %>%   # merge top diagnosis
+  group_by(fusion_group) %>%
   mutate(site_percent = round(primary_site_count / total_samples * 100),
-         nc_diagnosis_percent = round(nut_diagnosis_count / total_samples * 100)) |>
-  slice_max(primary_site_count, n = 3) |>
-  ungroup() |>
+         nc_diagnosis_percent = round(nut_diagnosis_count / total_samples * 100)) %>%
+  slice_max(primary_site_count, n = 3) %>%
+  ungroup() %>%
   mutate(fusion_group = factor(fusion_group, levels = desired_order))
 
-sites_table <- fusion_top_sites |>
-  arrange(fusion_group) |>
-  mutate(fusion_group = as.character(fusion_group)) |>
-  group_by(fusion_group) |>
+sites_table <- fusion_top_sites %>%
+  arrange(fusion_group) %>%
+  mutate(fusion_group = as.character(fusion_group)) %>%
+  group_by(fusion_group) %>%
   mutate(
     total_samples = ifelse(row_number() == 1,
                            paste0(total_samples, " (", round((total_samples / nrow(df)) * 100), "%)"),
@@ -118,33 +118,33 @@ sites_table <- fusion_top_sites |>
       row_number() == 1,
       paste0(nut_diagnosis_count, " (", nc_diagnosis_percent, "%)"), ""),
     site_percent = paste0(primary_site_count, " (", round(site_percent, 1), "%)"),
-    fusion_group = ifelse(row_number() == 1, fusion_group, "")) |>
-  ungroup() |>
-  select(fusion_group, total_samples, nut_diagnosis_percent, primary_site, site_percent) |>
-  gt() |>
+    fusion_group = ifelse(row_number() == 1, fusion_group, "")) %>%
+  ungroup() %>%
+  select(fusion_group, total_samples, nut_diagnosis_percent, primary_site, site_percent) %>%
+  gt() %>%
   tab_header(
     title = "Table: Cohort Characteristics By NUTM1 Gene Fusion Partner (n=165)",
     subtitle = ""
-  ) |>
+  ) %>%
   cols_label(
     fusion_group = "Fusion",
     total_samples = "Samples (%)",
     nut_diagnosis_percent = "NC Diagnosis (%)",
     primary_site = "Primary Site",
     site_percent = 'Samples Per Site (%)'
-  ) |>
+  ) %>%
   tab_style(
     style = cell_text(weight = "bold"),
     locations = cells_column_labels(everything()))
 
-gtsave(sites_table, filename = "work/results/tempus/table1.png")
+#gtsave(sites_table, filename = "work/results/tempus/table1.png")
 
 # Heatmap 3A
 
-rna <- df |> select(all_of(genelist)) |> drop_na()
-plt_df <- df |> filter(!is.na(MYC))
+rna <- df %>% select(all_of(genelist)) %>% drop_na()
+plt_df <- df %>% filter(!is.na(MYC))
 top_genes <- names(sort(colMeans(as.matrix(rna)), decreasing = TRUE))[1:20]
-hm_df <- rna |> select(all_of(top_genes))
+hm_df <- rna %>% select(all_of(top_genes))
 data_matrix <- t(as.matrix(hm_df))
 dm_max <- max(data_matrix)
 pal <- colorRampPalette(c("blue", "red"))
@@ -170,15 +170,15 @@ ht <- Heatmap(data_matrix,
               row_title_gp = gpar(fontsize = 12),
               column_title_gp = gpar(fontsize = 12))
 
-png("work/results/tempus/fig3A_heatmap.png", width = 800, height = 350)
-draw(ht, newpage = TRUE)
-dev.off()
+#png("work/results/tempus/fig3A_heatmap.png", width = 800, height = 350)
+#draw(ht, newpage = TRUE)
+#dev.off()
 
 # Density scatter Fig3B
 
 prame_threshold = 3.1
 
-plt_df <- df |> select(-c(1:4))
+plt_df <- df %>% select(-c(1:4))
 
 fig3B_densityscatter <- ggplot(plt_df, aes(x = NUTM1, y = PRAME, color = PRAME > prame_threshold)) +
   geom_density_2d(color = "black") +  # Ensure density lines are black
@@ -195,7 +195,7 @@ fig3B_densityscatter <- ggplot(plt_df, aes(x = NUTM1, y = PRAME, color = PRAME >
         axis.text.x = element_text(size = 12),
         axis.text.y = element_text(size = 12))
 
-ggsave("work/results/tempus/fig3B_densityscatter.pdf", fig3B_densityscatter, units = 'in', width = 7, height = 5)
+#ggsave("work/results/tempus/fig3B_densityscatter.pdf", fig3B_densityscatter, units = 'in', width = 7, height = 5)
 
 
 # Boxplot Fig3C
@@ -206,7 +206,7 @@ MIN_max <- min(plt_df[["PRAME"]], na.rm = TRUE)
 MAX_max <- max(plt_df[["PRAME"]], na.rm = TRUE)
 tenth_RANGE <- (MAX_max - MIN_max) * 0.1
 
-ft_data <- plt_df |>
+ft_data <- plt_df %>%
   summarize(
     median_value = signif(median(.data[["PRAME"]], na.rm = T), 2),
     mean_value = signif(mean(.data[["PRAME"]], na.rm = T), 2),
@@ -215,7 +215,7 @@ ft_data <- plt_df |>
     n_low = sum(.data[["PRAME"]] < prame_threshold, na.rm = T),
     .by = fusion_group)
 
-fig3C_box <- plt_df |>
+fig3C_box <- plt_df %>%
   ggplot(aes(x = fusion_group, y = PRAME, color = fusion_group)) +
   geom_sina(aes(color = ifelse(PRAME > prame_threshold, "PRAMEhigh", "PRAMElow")),
             shape = 21,
@@ -262,20 +262,20 @@ fig3C_box <- plt_df |>
   labs(x = "",
        y = "PRAME Log2(TPM+1)")
 
-ggsave('work/results/tempus/fig3C_boxplot.pdf', fig3C_box, units = 'in', width = 7, height = 5)
+#ggsave('work/results/tempus/fig3C_boxplot.pdf', fig3C_box, units = 'in', width = 7, height = 5)
 
 # Tissue Expression Fig3D
 
-plt_df <- df |>
-  mutate(primary_site = replace_na(primary_site, "Unknown primary site")) |>
+plt_df <- df %>%
+  mutate(primary_site = replace_na(primary_site, "Unknown primary site")) %>%
   mutate(primary_site = recode(primary_site, "Skin of other and unspecified parts of face" = "Skin - Other"))
 
-site_percentages <- plt_df |>
-  group_by(primary_site) |>
+site_percentages <- plt_df %>%
+  group_by(primary_site) %>%
   summarise(
     total_samples = n(),
     samples_above_3_1 = sum(PRAME > 3.1, na.rm = TRUE)
-  ) |>
+  ) %>%
   mutate(
     percent_above_3_1 = (samples_above_3_1 / total_samples) * 100
   )
@@ -310,4 +310,4 @@ dot_plot <- ggplot(plt_df) +
   scale_x_discrete(labels = c("(PNS) Peripheral nervous system, NOS" = "(PNS), NOS"))
 
 grid <- plot_grid(bar_plot, dot_plot, ncol = 1, align = "v", rel_heights = c(1, 3))
-ggsave("work/results/tempus/fig3D_tissue_expression.pdf", grid, units = 'in', width = 8, height = 4)
+#ggsave("work/results/tempus/fig3D_tissue_expression.pdf", grid, units = 'in', width = 8, height = 4)
