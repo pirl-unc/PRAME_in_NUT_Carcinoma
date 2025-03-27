@@ -52,7 +52,8 @@ ENV PATH="/opt/circos/bin:${PATH}"
 # Install the necessary R packages
 RUN R -e "install.packages(c('here','NatParksPalettes','drc','UpSetR','circlize'), repos='https://cloud.r-project.org/')"
 # Install necessary R packages
-RUN R -e "install.packages('ComplexHeatmap')"
+RUN R -e "install.packages('devtools', repos='https://cloud.r-project.org/')"
+RUN R -e "devtools::install_github('jokergoo/ComplexHeatmap')"
 
 
 # Set password for rstudio user
