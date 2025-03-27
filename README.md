@@ -1,6 +1,6 @@
 # PRAME in NUT Carcinoma
 
-This repository contains all scripts used to complete analysis and make figures for the paper: PRAME EPitopes re T-Cell Immunovulnerabilities in BRD4::NUTM1 Initiated NUT Carcinoma (https://www.biorxiv.org/content/10.1101/2025.03.07.642090v1) 
+This repository contains all scripts used to complete analysis and make figures for our pre-print (currently under review): PRAME Epitopes are T-Cell Immunovulnerabilities in BRD4::NUTM1 Initiated NUT Carcinoma (https://www.biorxiv.org/content/10.1101/2025.03.07.642090v1) 
 
 To get started, clone this repository (can also use SSH keys if you have that set up)
 ```
