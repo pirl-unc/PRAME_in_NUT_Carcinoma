@@ -9,7 +9,7 @@ echo "Creating list of CTAs per cell line."
 # affinity and be observed in at least two replicates for the sample.
 for i in 1015 14169 797 JCM1; do 
   echo ${i}
-  grep -f <(grep "	${i}\-" nutm1.agg.lens_report.tsv |
+  grep -f <(grep "	${i}\-" ../../data/nutm1.agg.lens_report.tsv |
             grep "	CTA/SELF	" | # Only CTAs
             awk '$9 < 500' | # Only <500 nM CTAs
             cut -f 30,36 | # Extract transcript identifier and patient identifier
@@ -39,7 +39,7 @@ done
 # The code has been modified to reflect that.
 for i in PDX; do 
   echo ${i}
-  grep -f <(grep "	${i}	" nutm1.agg.lens_report.tsv |
+  grep -f <(grep "	${i}	" ../../data/nutm1.agg.lens_report.tsv |
             grep "	CTA/SELF	" | # Only CTAs
             awk '$9 < 500' | # Only <500 nM CTAs
             cut -f 30,36 | # Extract transcript identifier and patient identifier
@@ -66,7 +66,7 @@ done
 # Get the list of CTAs expressed in Per403/PER403. The reps for this sample use
 # different capitalization of the sample name, so a unique method is required
 echo "PER403/Per403"
-grep -f <(grep "R403-" nutm1.agg.lens_report.tsv |
+grep -f <(grep "R403-" ../../data/nutm1.agg.lens_report.tsv |
           grep "	CTA/SELF	" | # Only CTAs
           awk '$9 < 500' | # Only <500 nM CTAs
           cut -f 30,36 | # Extract transcript identifier and patient identifier
@@ -310,7 +310,7 @@ sed -i 's/1015/10-15/g' antigen_counts.tsv
 sed -i 's/797/TC-797/g' antigen_counts.tsv
 
 
-/share/apps/clusterapps/R-4.4.1/bin/Rscript make_antigen_barplot.R
+Rscript ../R/make_antigen_barplot.R
 
 echo "Making peptide heatmaps for NUTM1..."
 
@@ -518,8 +518,8 @@ rev |
 sort -n -k1,1 | 
 sed 's/^/PER403	/g' >> prame_matrix_inputs.tsv
 
-python3 create_cta_matrix.py -i nutm1_matrix_inputs.tsv -o nutm1_matrix.tsv -l 1132
-python3 create_cta_matrix.py -i prame_matrix_inputs.tsv -o prame_matrix.tsv -l 509
+python3 ../python/create_cta_matrix.py -i nutm1_matrix_inputs.tsv -o nutm1_matrix.tsv -l 1132
+python3 ../python/create_cta_matrix.py -i prame_matrix_inputs.tsv -o prame_matrix.tsv -l 509
 
 sed -i 's/^797/TC-797/g' nutm1_matrix.tsv
 sed -i 's/^797/TC-797/g' prame_matrix.tsv
@@ -527,4 +527,4 @@ sed -i 's/^797/TC-797/g' prame_matrix.tsv
 sed -i 's/^1015/10-15/g' nutm1_matrix.tsv
 sed -i 's/^1015/10-15/g' prame_matrix.tsv
 
-/share/apps/clusterapps/R-4.4.1/bin/Rscript make_heatmaps.R
+Rscript ../R/make_heatmaps.R
