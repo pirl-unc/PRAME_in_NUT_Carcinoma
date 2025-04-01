@@ -1,7 +1,7 @@
-rm *CTA*
-rm *png
-rm *svg
-rm antigen_counts.tsv
+rm -f *CTA*
+rm -f *png
+rm -f *svg
+rm -f antigen_counts.tsv
 
 echo "Creating list of CTAs per cell line."
 
@@ -9,7 +9,7 @@ echo "Creating list of CTAs per cell line."
 # affinity and be observed in at least two replicates for the sample.
 for i in 1015 14169 797 JCM1; do 
   echo ${i}
-  grep -f <(grep "	${i}\-" ../../data/nutm1.agg.lens_report.tsv |
+  grep -f <(grep "	${i}\-" ../../data/lens_report/nutm1.agg.lens_report.tsv |
             grep "	CTA/SELF	" | # Only CTAs
             awk '$9 < 500' | # Only <500 nM CTAs
             cut -f 30,36 | # Extract transcript identifier and patient identifier
@@ -39,7 +39,7 @@ done
 # The code has been modified to reflect that.
 for i in PDX; do 
   echo ${i}
-  grep -f <(grep "	${i}	" ../../data/nutm1.agg.lens_report.tsv |
+  grep -f <(grep "	${i}	" ../../data/lens_report/nutm1.agg.lens_report.tsv |
             grep "	CTA/SELF	" | # Only CTAs
             awk '$9 < 500' | # Only <500 nM CTAs
             cut -f 30,36 | # Extract transcript identifier and patient identifier
@@ -66,7 +66,7 @@ done
 # Get the list of CTAs expressed in Per403/PER403. The reps for this sample use
 # different capitalization of the sample name, so a unique method is required
 echo "PER403/Per403"
-grep -f <(grep "R403-" ../../data/nutm1.agg.lens_report.tsv |
+grep -f <(grep "R403-" ../../data/lens_report/nutm1.agg.lens_report.tsv |
           grep "	CTA/SELF	" | # Only CTAs
           awk '$9 < 500' | # Only <500 nM CTAs
           cut -f 30,36 | # Extract transcript identifier and patient identifier
@@ -155,7 +155,7 @@ echo "Line	Antigen_Source	pMHC_Count" > antigen_counts.tsv
 for samp in 797 1015 14169 JCM1 PER403; do  # For each line (except for PDX)
   for i in SPLICE FUSION ERV VIRUS; do  # For each antigen source
     ANTIGEN_COUNT=`csvcut -d '	' -c peptide,antigen_source,allele,patient_identifier,netmhcpan_4.1b-aff_nm,transcript_id \
-                                     nutm1.agg.lens_report.tsv | # Extract relevant columns
+                                     ../../data/lens_report/nutm1.agg.lens_report.tsv | # Extract relevant columns
                     sed 's/,/	/g' |  # Turn commas to tabs
                     grep "	${samp}-" |  # Grep for samp identifier
                     awk '$5 < 500' | # Filter for binding affinities <500 nM
@@ -173,7 +173,7 @@ done
 for samp in PDX; do  # For each line (except for PDX)
   for i in SPLICE FUSION ERV VIRUS; do  # For each antigen source
     ANTIGEN_COUNT=`csvcut -d '	' -c peptide,antigen_source,allele,patient_identifier,netmhcpan_4.1b-aff_nm,transcript_id \
-                                     nutm1.agg.lens_report.tsv | # Extract relevant columns
+                                     ../../data/lens_report/nutm1.agg.lens_report.tsv | # Extract relevant columns
                     sed 's/,/	/g' |  # Turn commas to tabs
                     grep "	${samp}	" |  # Grep for samp identifier
                     awk '$5 < 500' | # Filter for binding affinities <500 nM
@@ -190,7 +190,7 @@ done
 for samp in 797 1015 14169 JCM1 PER403; do  # For each line (except for PDX)
   for i in "CTA/SELF"; do  # For each antigen source
     ANTIGEN_COUNT=`csvcut -d '	' -c peptide,antigen_source,allele,patient_identifier,netmhcpan_4.1b-aff_nm,transcript_id \
-                                     nutm1.agg.lens_report.tsv | # Extract relevant columns
+                                     ../../data/lens_report/nutm1.agg.lens_report.tsv | # Extract relevant columns
                     sed 's/,/	/g' |  # Turn commas to tabs
                     grep -v -f NUTM1_PRAME_tx_ids | # Remove CTAs from NUTM1 and PRAME
                     grep "	${samp}-" |  # Grep for samp identifier
@@ -209,7 +209,7 @@ done
 for samp in PDX; do  # For each line (except for PDX)
   for i in "CTA/SELF"; do  # For each antigen source
     ANTIGEN_COUNT=`csvcut -d '	' -c peptide,antigen_source,allele,patient_identifier,netmhcpan_4.1b-aff_nm,transcript_id \
-                                     nutm1.agg.lens_report.tsv | # Extract relevant columns
+                                     ../../data/lens_report/nutm1.agg.lens_report.tsv | # Extract relevant columns
                     sed 's/,/	/g' |  # Turn commas to tabs
                     grep -v -f NUTM1_PRAME_tx_ids | # Remove CTAs from NUTM1 and PRAME
                     grep "	${samp}	" |  # Grep for samp identifier
@@ -227,7 +227,7 @@ done
 for samp in 797 1015 14169 JCM1 PER403; do  # For each line (except for PDX)
   for i in "CTA/SELF"; do  # For each antigen source
     ANTIGEN_COUNT=`csvcut -d '	' -c peptide,antigen_source,allele,patient_identifier,netmhcpan_4.1b-aff_nm,transcript_id \
-                                     nutm1.agg.lens_report.tsv | # Extract relevant columns
+                                     ../../data/lens_report/nutm1.agg.lens_report.tsv | # Extract relevant columns
                     sed 's/,/	/g' |  # Turn commas to tabs
                     grep -f PRAME_tx_ids | # Remove CTAs from NUTM1 and PRAME
                     grep "	${samp}-" |  # Grep for samp identifier
@@ -246,7 +246,7 @@ done
 for samp in PDX; do  # For each line (except for PDX)
   for i in "CTA/SELF"; do  # For each antigen source
     ANTIGEN_COUNT=`csvcut -d '	' -c peptide,antigen_source,allele,patient_identifier,netmhcpan_4.1b-aff_nm,transcript_id \
-                                     nutm1.agg.lens_report.tsv | # Extract relevant columns
+                                     ../../data/lens_report/nutm1.agg.lens_report.tsv | # Extract relevant columns
                     sed 's/,/	/g' |  # Turn commas to tabs
                     grep -f PRAME_tx_ids | # Remove CTAs from NUTM1 and PRAME
                     grep "	${samp}	" |  # Grep for samp identifier
@@ -264,7 +264,7 @@ done
 for samp in 797 1015 14169 JCM1 PER403; do  # For each line (except for PDX)
   for i in "CTA/SELF"; do  # For each antigen source
     ANTIGEN_COUNT=`csvcut -d '	' -c peptide,antigen_source,allele,patient_identifier,netmhcpan_4.1b-aff_nm,transcript_id \
-                                     nutm1.agg.lens_report.tsv | # Extract relevant columns
+                                     ../../data/lens_report/nutm1.agg.lens_report.tsv | # Extract relevant columns
                     sed 's/,/	/g' |  # Turn commas to tabs
                     grep -f NUTM1_tx_ids | # Remove CTAs from NUTM1 and PRAME
                     grep "	${samp}-" |  # Grep for samp identifier
@@ -283,7 +283,7 @@ done
 for samp in PDX; do  # For each line (except for PDX)
   for i in "CTA/SELF"; do  # For each antigen source
     ANTIGEN_COUNT=`csvcut -d '	' -c peptide,antigen_source,allele,patient_identifier,netmhcpan_4.1b-aff_nm,transcript_id \
-                                     nutm1.agg.lens_report.tsv | # Extract relevant columns
+                                     ../../data/lens_report/nutm1.agg.lens_report.tsv | # Extract relevant columns
                     sed 's/,/	/g' |  # Turn commas to tabs
                     grep -f NUTM1_tx_ids | # Remove CTAs from NUTM1 and PRAME
                     grep "	${samp}	" |  # Grep for samp identifier
@@ -315,7 +315,7 @@ Rscript ../R/make_antigen_barplot.R
 echo "Making peptide heatmaps for NUTM1..."
 
 echo "Extracting pMHCs from 797..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv | 
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv | 
 sed 's/,/	/g' | 
 awk '$4 ~ /797/' | 
 awk '$6 < 500' | 
@@ -332,7 +332,7 @@ sort -n -k1,1 |
 sed 's/^/797	/g' > nutm1_matrix_inputs.tsv
 
 echo "Extracting pMHCs from 1015..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv |
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv |
 sed 's/,/	/g' |
 awk '$4 ~ /1015/' |
 awk '$6 < 500' | 
@@ -349,7 +349,7 @@ sort -n -k1,1 |
 sed 's/^/1015	/g' >> nutm1_matrix_inputs.tsv
 
 echo "Extracting pMHCs from 14169..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv |
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv |
 sed 's/,/	/g' |
 awk '$4 ~ /14169/' |
 awk '$6 < 500' | 
@@ -366,7 +366,7 @@ sort -n -k1,1 |
 sed 's/^/14169	/g' >> nutm1_matrix_inputs.tsv
 
 echo "Extracting pMHCs from PDX..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv |
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv |
 sed 's/,/	/g' |
 awk '$4 ~ /PDX/' |
 awk '$6 < 500' | 
@@ -382,7 +382,7 @@ sort -n -k1,1 |
 sed 's/^/PDX	/g' >> nutm1_matrix_inputs.tsv
 
 echo "Extracting pMHCs from JCM1..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv |
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv |
 sed 's/,/	/g' |
 awk '$4 ~ /JCM1/' |
 awk '$6 < 500' | 
@@ -399,7 +399,7 @@ sort -n -k1,1 |
 sed 's/^/JCM1	/g' >> nutm1_matrix_inputs.tsv
 
 echo "Extracting pMHCs from PER403..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv |
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv |
 sed 's/,/	/g' |
 awk '$4 ~ /PER403/' |
 awk '$6 < 500' | 
@@ -418,7 +418,7 @@ sed 's/^/PER403	/g' >> nutm1_matrix_inputs.tsv
 echo "Making peptide heatmaps for PRAME..."
 
 echo "Extracting pMHCs from 797..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv | 
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv | 
 sed 's/,/	/g' | 
 awk '$4 ~ /797/' | 
 awk '$6 < 500' | 
@@ -435,7 +435,7 @@ sort -n -k1,1 |
 sed 's/^/797	/g' > prame_matrix_inputs.tsv
 
 echo "Extracting pMHCs from 1015..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv |
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv |
 sed 's/,/	/g' |
 awk '$4 ~ /1015/' |
 awk '$6 < 500' | 
@@ -452,7 +452,7 @@ sort -n -k1,1 |
 sed 's/^/1015	/g' >> prame_matrix_inputs.tsv
 
 echo "Extracting pMHCs from 14169..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv |
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv |
 sed 's/,/	/g' |
 awk '$4 ~ /14169/' |
 awk '$6 < 500' | 
@@ -469,7 +469,7 @@ sort -n -k1,1 |
 sed 's/^/14169	/g' >> prame_matrix_inputs.tsv
 
 echo "Extracting pMHCs from PDX..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv |
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv |
 sed 's/,/	/g' |
 awk '$4 ~ /PDX/' |
 awk '$6 < 500' | 
@@ -485,7 +485,7 @@ sort -n -k1,1 |
 sed 's/^/PDX	/g' >> prame_matrix_inputs.tsv
 
 echo "Extracting pMHCs from JCM1..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv |
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv |
 sed 's/,/	/g' |
 awk '$4 ~ /JCM1/' |
 awk '$6 < 500' | 
@@ -502,7 +502,7 @@ sort -n -k1,1 |
 sed 's/^/JCM1	/g' >> prame_matrix_inputs.tsv
 
 echo "Extracting pMHCs from PER403..."
-csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm nutm1.agg.lens_report.tsv |
+csvcut -d '	' -c pos,peptide,antigen_source,patient_identifier,transcript_id,netmhcpan_4.1b-aff_nm ../../data/lens_report/nutm1.agg.lens_report.tsv |
 sed 's/,/	/g' |
 awk '$4 ~ /PER403/' |
 awk '$6 < 500' | 
