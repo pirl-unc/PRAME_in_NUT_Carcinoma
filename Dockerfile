@@ -38,10 +38,10 @@ RUN echo 'source /opt/conda/etc/profile.d/conda.sh && conda activate run-env' >>
 ENV PATH="/opt/conda/envs/run-env/bin:$PATH"
 
 # Activate the newly created conda run environment and install packages using pip3
-RUN conda run -n run-env pip install jupyter pysam
+RUN conda run -n run-env pip install jupyter pysam csvkit
 
 # Install Circos and its Perl dependencies
-RUN cpanm Clone Config::General Font::TTF::Font GD Math::Bezier Math::Round \
+RUN cpanm Clone Config::General Font::TTF::Font GD Math::Bezier Math::Round Text::Format \
     Math::VecStat Readonly Regexp::Common SVG Set::IntSpan Statistics::Basic \
     && wget --no-check-certificate http://circos.ca/distribution/circos-0.69-9.tgz \
     && tar xvfz circos-0.69-9.tgz \
