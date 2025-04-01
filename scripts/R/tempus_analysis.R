@@ -311,3 +311,69 @@ dot_plot <- ggplot(plt_df) +
 
 grid <- plot_grid(bar_plot, dot_plot, ncol = 1, align = "v", rel_heights = c(1, 3))
 #ggsave("work/results/tempus/fig3D_tissue_expression.pdf", grid, units = 'in', width = 8, height = 4)
+
+# Fusion Counts Supplemental Figure S2A
+
+plt_df <- df %>% group_by(marker_name) %>% summarise(count = n())
+
+plt_df <- plt_df |>
+  mutate(marker_name = gsub("-", "::", marker_name)) |>
+  mutate(percent = count/165*100)
+
+# show count of all fusion partners
+count_plot <- ggplot(plt_df, aes(x = reorder(marker_name, count), y = count)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = paste0(count, "")), 
+            hjust = -0.1,  # adjust horizontal position as needed
+            size = 3) +  # adjust text size as needed
+  coord_flip() + 
+  labs(x = "Fusion", y = "Number of Samples (n=165)", title = "") +
+  theme_minimal() + 
+  theme(
+    axis.text.y = element_text(size = 10, face = "italic"),
+    axis.text.x = element_text(size = 12)
+  ) 
+
+
+# Supplemental Figure S2B
+
+plt_df <- df |>
+  mutate(marker_name = gsub("-", "::", marker_name)) |>
+  filter(!is.na(PRAME))
+
+MIN_max <- min(plt_df[["PRAME"]], na.rm = TRUE)
+MAX_max <- max(plt_df[["PRAME"]], na.rm = TRUE)
+tenth_RANGE <- (MAX_max - MIN_max) * 0.1
+
+ft_data <- plt_df |>
+  summarize(
+    median_value = signif(median(.data[["PRAME"]], na.rm = T), 2),
+    mean_value = signif(mean(.data[["PRAME"]], na.rm = T), 2),
+    n_all = n(),
+    n_high = sum(.data[["PRAME"]] > 3.1, na.rm = T),
+    n_low = sum(.data[["PRAME"]] < 3.1, na.rm = T),
+    .by = marker_name)
+marker_list <- ft_data |> filter(n_high > 0) |> pull(marker_name)
+
+plt_df$marker_name <- factor(plt_df$marker_name,
+                             levels = ft_data$marker_name[order(ft_data$n_high, decreasing = TRUE)])
+
+point_plot <- plt_df |>
+  filter(marker_name %in% marker_list) |>
+  ggplot(aes(x = marker_name, y = PRAME, color = marker_name)) +
+  geom_point(aes(color = ifelse(PRAME > 3.1, "PRAMEhigh", "PRAMElow")),
+             shape = 21,
+             size = 2, alpha = 0.6
+  ) +
+  scale_color_manual(values = c("PRAMEhigh" = "red", "PRAMElow"="blue"), labels = c(expression(italic(PRAME)^"high"), expression(italic(PRAME)^"low")), name="PRAME Group")+
+  geom_hline(yintercept = 3.1, color = "black", linetype = "dashed") +
+  scale_x_discrete(labels = c("BRD4-NUTM1"="BRD4::NUTM1", "BRD3-NUTM1"="BRD3::NUTM1", "NSD3-NUTM1"="NSD3::NUTM1")) +
+  theme_minimal() +
+  theme(legend.postition = "none",
+        axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 14)) +
+  labs(x = "",
+       y = "PRAME Log2(TPM+1)")
+
+
+
