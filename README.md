@@ -23,4 +23,4 @@ The docker container runs both Rstudio and Python/Jupyter notebook.
 
 Great!! You're in!!
 
-Important note on the analysis included in this repository. This repository does not house the raw sequencing data (fastq) files. The data was processed using nf core RNA seq pipeline (https://nf-co.re/rnaseq/latest/). The necessary files (samplesheet, parameter file, and bash script) to run this pipeline as we did to produce the intermediate results used for analyses in this repo are included in ```/work/scripts/nextflow```. 
+Important note on the analysis included in this repository. This repository does not house the raw sequencing data (fastq) files. The data was processed using nf core RNA seq pipeline (https://nf-co.re/rnaseq/latest/). The necessary files (samplesheet, parameter file, and bash script) to run this pipeline as we did to produce the intermediate results used for analyses in this repo are included in ```/scripts/nextflow```. 
