@@ -22,3 +22,5 @@ The docker container runs both Rstudio and Python/Jupyter notebook.
 - To access Jupyter notebook go to http://<host_machine_ip>:8888/tree?token=<token> . Where host machine IP is the IP address of the machine running the Docker container, and the token can be found in the container log in the bash shell you started the container in.There will be a link you can click to in the log that will take you to the Jupyter Notebook. 
 
 Great!! You're in!!
+
+Important note on the analysis included in this repository. This repository does not house the raw sequencing data (fastq) files. The data was processed using nf core RNA seq pipeline (https://nf-co.re/rnaseq/latest/). The necessary files (samplesheet, parameter file, and bash script) to run this pipeline as we did to produce the intermediate results used for analyses in this repo are included in ```/work/scripts/nextflow```. 
