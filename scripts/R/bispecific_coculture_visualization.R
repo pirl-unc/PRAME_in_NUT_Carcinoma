@@ -27,10 +27,14 @@ sample_vals <- t2_data %>% filter(well_id == 'sample ')
 
 sample_vals_norm <- sample_vals %>% mutate(norm_value = (raw_val - t_avg) / (u_avg - t_avg),
                                            desc = factor(desc, levels = c('unpulsed', 'pulsed')))
+sample_vals_norm <- sample_vals_norm %>% 
+  group_by(desc) %>% 
+  mutate(norm_value_max = norm_value / max(norm_value))
+
 sample_vals_norm$concentration <- as.numeric(sample_vals_norm$concentration)
 
 models <- drm(
-  norm_value ~ concentration, 
+  norm_value_max ~ concentration, 
   desc, # grouping variable, group on pulse or no pulse
   data = sample_vals_norm, # contain concentration, measured output, and grouping variable
   fct = LL2.4() # type of fit, this a four parameter logistic curve
@@ -59,7 +63,7 @@ predictions$pmax = pm[,3]
 
 t2_cell_viability <- ggplot() +
   geom_point(data = sample_vals_norm,
-             aes(x = concentration, y = norm_value, color = desc),
+             aes(x = concentration, y = norm_value_max, color = desc),
              size = 2) +
   geom_line(data = predictions,
             aes(x = concentration, y = p, color = desc, linetype = desc),
@@ -84,21 +88,26 @@ t2_cell_viability <- ggplot() +
 
 ggsave('work/results/bispecific/Figure5b_T2_norm_cell_viability_concentration.pdf', plot = t2_cell_viability, units = 'in', width = 4.5, height = 3.5,  dpi = 500)
 
- 
-max(sample_vals_norm$norm_value)
-
 
 # Panel C Cytoxicity - Concentration Concentration ------------------------------------------
 
-conc <- conc %>% mutate(Concentration = 10^seq(-8, -13, length.out = n()))
+conc <- conc %>% mutate(Concentration = 10^seq(-8, -12, length.out = n()))
 
 conc_long <- conc %>% pivot_longer(cols = -Concentration, values_to = 'normalized_cell_survival', names_to = 'cell_line')
-conc_long <- conc_long %>% mutate(cell_line = gsub('\\_.*', "", conc_long$cell_line))
+conc_long <- conc_long %>% mutate(cell_line = gsub('\\_.*', "", conc_long$cell_line)) 
+conc_long <- conc_long %>%
+  group_by(Concentration, cell_line) %>%
+  mutate(mean_viability = mean(normalized_cell_survival, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(
+    global_max_mean = max(mean_viability, na.rm = TRUE),
+    normalized_to_global_max = normalized_cell_survival / global_max_mean
+  )
 
 
 # Fit the 4PL model to the raw data (including replicates)
 models <- drm(
-  normalized_cell_survival ~ Concentration, 
+  normalized_to_global_max ~ Concentration, 
   cell_line, # grouping variable, makes a model for each group provided here
   data = conc_long, # contain concentration, measured output, and grouping variable
   fct = LL.4() # type of fit, this a four parameter logistic curve
@@ -129,46 +138,43 @@ predictions$pmax = pm[,3]
 # Aggregate data to calculate mean and standard deviation for each concentration and cell line
 # Will use to plot the mean point as dot and then sd as lines
 aggregated_data <- conc_long %>%
-  group_by(cell_line, Concentration) %>%
+  group_by(Concentration, cell_line) %>%
   summarize(
-    mean_survival = mean(normalized_cell_survival, na.rm = TRUE),
-    sd_survival = sd(normalized_cell_survival, na.rm = TRUE),
+    mean_survival = mean(normalized_to_global_max),
+    sd_survival = sd(normalized_to_global_max),
     .groups = "drop")
 
 
 NCI_cells_lines_plot <- ggplot() +
   # Add the fitted 4PL curve
   geom_line(data = predictions, 
-            aes(x = Concentration, y = p, color = cell_line, linetype = cell_line), 
-            size = 1) +
+            aes(x = Concentration, y = p, color = cell_line), size = 1) +
   # Add points for the mean
   geom_point(data = aggregated_data, 
-             aes(x = Concentration, y = mean_survival, color = cell_line), 
-             size = 3) +
+             aes(x = Concentration, y = mean_survival, color = cell_line), size = 3) +
   # Add error bars for standard deviation
   geom_errorbar(data = aggregated_data, 
                 aes(x = Concentration, ymin = mean_survival - sd_survival, ymax = mean_survival + sd_survival, color = cell_line), 
                 width = 0.2, size = 0.4) +
   # Log scale for x-axis
   scale_x_log10() +
-  ylim(0,2) +
+  ylim(0, 1.5) +
   # Labels and theme
   labs(
     x = "PRAME BiTE Concentration [M]", 
     y = "Normalized Cell Survival", 
     title = ""
   ) +
+  scale_color_manual(values = "#31688e") +
   theme_classic() +
-  scale_color_manual(values = c('#35b779','#31688e')) +
-  scale_linetype_manual(values = c("solid", "dashed"), guide = "none") +
-  theme(legend.title = element_blank(),
-        axis.text.x = element_text(size = 14),
-        axis.title.x = element_text(size = 14),
-        axis.text.y = element_text(size = 14),
-        legend.text = element_text(size = 14),
-        axis.title.y = element_text(size = 14),
-        legend.position = "top",
-        legend.margin = margin(-25, 0, 0, 0))
+  theme(
+    legend.position = "top",
+    legend.title = element_blank(),
+    axis.text.x = element_text(size = 14),
+    axis.title.x = element_text(size = 14),
+    axis.text.y = element_text(size = 14),
+    axis.title.y = element_text(size = 14)
+  )
   
 ggsave('work/results/bispecific/Figure5c_NCI_celllines_norm_cell_viability_dose_titration.pdf', plot = NCI_cells_lines_plot,units = 'in', width = 4.5, height = 3.5, dpi = 500)
 
@@ -221,29 +227,24 @@ data_summary <- data_long %>%
   )
 
 # Create the plot
-bispecific_timecourse_NC_cell_lines_plot <- ggplot(data_summary, 
-       aes(x = culture_condition, 
+bispecific_timecourse_NC_cell_lines_plot <- ggplot(data_summary %>% filter(pulse_condition == 'no_pulse'), 
+       aes(x = as.factor(culture_condition), 
            y = mean_luminescence, 
-           color = pulse_condition)) +
+           color = as.factor(time))) +
   # Add points for the mean
-  geom_point(size = 3, position = position_dodge(width = 0.5)) +
+  geom_point(size = 3) +
   # Add error bars for SD
   geom_errorbar(aes(ymin = mean_luminescence - sd_luminescence, 
                     ymax = mean_luminescence + sd_luminescence),
-                width = 0.2, size = 0.8, 
-                position = position_dodge(width = 0.5)) +
-  # Facet grid by time and cell line
-  facet_grid(time ~ cell_line, scales = "fixed", 
+                width = 0.2, size = 0.8) +
+  # Facet grid by cell line
+  facet_grid(~cell_line, scales = "fixed", 
              labeller = labeller(
                cell_line = c(
-                 "H460" = "H460",
-                 "797" = "TC-797",
-                 "14169" = "14169",
-                 "1015" = "10-15"
-               ),
-               time = c(
-                 "48" = "48 Hours",  
-                 "96" = "96 Hours"
+                 "H460" = "H460 \n (PRAME +, A*02 -)",
+                 "797" = "TC-797 \n (PRAME -, A*02 +)",
+                 "14169" = "14169 \n (PRAME +, A*02 +)",
+                 "1015" = "10-15 \n (PRAME +, A*02 +)"
                )
              )) +
   # Logarithmic fold change and custom aesthetics
@@ -257,11 +258,13 @@ bispecific_timecourse_NC_cell_lines_plot <- ggplot(data_summary,
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
     plot.title = element_text(hjust = 0.5),
-    panel.spacing = unit(0.5, "lines")
+    panel.spacing = unit(0.5, "lines"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank()
   ) +
   scale_color_manual(
     values = c('#fde725', '#440154'),
-    labels = c("- Peptide Pulse", "+ Peptide Pulse")
+    labels = c("48 hrs", "96 hrs")
   ) +
   scale_x_discrete(
     labels = c(
@@ -272,4 +275,4 @@ bispecific_timecourse_NC_cell_lines_plot <- ggplot(data_summary,
   ) +
   geom_hline(yintercept = 1, linetype = "dashed", color = "gray50")
 
-ggsave('work/results/bispecific/Figure5d_PRAME_bispecific_across_cell_lines_normalized.pdf', plot = bispecific_timecourse_NC_cell_lines_plot, units = 'in', width = 6.5, height = 4.5, dpi = 500)
+ggsave('work/results/bispecific/Figure5d_PRAME_bispecific_across_cell_lines_normalized.pdf', plot = bispecific_timecourse_NC_cell_lines_plot, units = 'in', width = 6.75, height = 3.5, dpi = 500)

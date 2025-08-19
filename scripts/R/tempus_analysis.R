@@ -1,5 +1,6 @@
 library(tidyverse)
 library(ggplot2)
+library(here)
 library(cowplot)
 library(gt)
 library(colorRamp2)
@@ -72,7 +73,7 @@ theme_custom <- function(base_size = 12, ticks = TRUE, ylab = TRUE, xlab = TRUE,
 
 # Load data
 
-df <- read_csv("work/data/tempus_data/tempus_NUT_PRAME_paper_data.csv")
+df <- read_csv("work/data/tempus_data/UNC_NUT_tempus_data.csv")
 genelist <- colnames(df)[-(1:4)]
 
 # Table 1
@@ -151,8 +152,8 @@ pal <- colorRampPalette(c("blue", "red"))
 pal_cols <- pal(3)
 color_scale <- colorRamp2(c(0, dm_max/2, dm_max), c(pal_cols[1], pal_cols[2], pal_cols[3]))
 
-oncogene_list <- c("MYC", "TP53", "KRAS")
-row_groups <- factor(ifelse(rownames(data_matrix) %in% oncogene_list, "oncogenes", "CTAs"), levels = c("oncogenes", "CTAs"))
+other_gene_list <- c("MYC", "TP53", "KRAS")
+row_groups <- factor(ifelse(rownames(data_matrix) %in% other_gene_list, "other genes", "CTAs"), levels = c("other genes", "CTAs"))
 column_order <- gsub("-", "::", c("BRD4-NUTM1", "BRD3-NUTM1", "NSD3-NUTM1", "Other"))
 
 ht <- Heatmap(data_matrix,
