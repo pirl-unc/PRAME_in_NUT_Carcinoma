@@ -4,7 +4,7 @@ library(tidyverse)
 
 tma <- read.csv('data/source_data/TMA_stain/TMA_PRAME_C_French.csv')
 prame_labels <- c("0" = "< 1%", "1" = "1-25%", "2" = "26-75%", "3" = "≥ 75%")
-prame_colors <- c("0" = "#31688EFF", "1" = "#CC99FF", "2" = "#FF9933", "3" = "#CC0000")
+prame_colors <- c("0" = "#0000CC", "1" = "#660099", "2" = "#990066", "3" = "#CC0000")
 
 tma_count <- tma %>%
   group_by(PRAME) %>%
