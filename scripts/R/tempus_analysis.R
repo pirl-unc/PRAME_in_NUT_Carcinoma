@@ -73,7 +73,7 @@ theme_custom <- function(base_size = 12, ticks = TRUE, ylab = TRUE, xlab = TRUE,
 
 # Load data
 
-df <- read_csv("work/data/tempus_data/UNC_NUT_tempus_data.csv")
+df <- read_csv("GitHub/PRAME_in_NUT_Carcinoma/data/tempus_data/UNC_NUT_tempus_data.csv")
 genelist <- colnames(df)[-(1:4)]
 
 # Table 1
@@ -156,6 +156,7 @@ other_gene_list <- c("MYC", "TP53", "KRAS")
 row_groups <- factor(ifelse(rownames(data_matrix) %in% other_gene_list, "other genes", "CTAs"), levels = c("other genes", "CTAs"))
 column_order <- gsub("-", "::", c("BRD4-NUTM1", "BRD3-NUTM1", "NSD3-NUTM1", "Other"))
 
+#pdf(file = "GitHub/PRAME_in_NUT_Carcinoma/results/tempus/tempus_cohort_RNA_seq.pdf", width = 5.6, height = 3.6)
 ht <- Heatmap(data_matrix,
               name = "log2(TPM+1)",
               show_row_names = TRUE,
@@ -170,9 +171,7 @@ ht <- Heatmap(data_matrix,
               column_names_gp = gpar(fontsize = 10),
               row_title_gp = gpar(fontsize = 12),
               column_title_gp = gpar(fontsize = 12))
-
-#png("work/results/tempus/fig3A_heatmap.png", width = 800, height = 350)
-#draw(ht, newpage = TRUE)
+#draw(ht)
 #dev.off()
 
 # Density scatter Fig3B
@@ -181,22 +180,22 @@ prame_threshold = 3.1
 
 plt_df <- df %>% select(-c(1:4))
 
-fig3B_densityscatter <- ggplot(plt_df, aes(x = NUTM1, y = PRAME, color = PRAME > prame_threshold)) +
+high_low_densityscatter <- ggplot(plt_df, aes(x = NUTM1, y = PRAME, color = PRAME > prame_threshold)) +
   geom_density_2d(color = "black") +  # Ensure density lines are black
   geom_hline(yintercept = prame_threshold, linetype = "dashed", color = "#404040", size = 1) +
   geom_point(size = 2, alpha = 0.7) +
-  annotate("text", x = 9.5, y = 5, label = expression(italic(PRAME)^"high"), hjust = -0.1, angle = 90, size = 4.5) +
-  annotate("text", x = 9.5, y = -0.2, label = expression(italic(PRAME)^"low"), hjust = -0.1, angle = 90, size = 4.5) +
+  annotate("text", x = 9.5, y = 5, label = expression(italic(PRAME)^"high"), hjust = -0.1, angle = 90, size = 3) +
+  annotate("text", x = 9.5, y = -0.2, label = expression(italic(PRAME)^"low"), hjust = -0.1, angle = 90, size = 3) +
   scale_color_manual(values = c("TRUE" = "red", "FALSE" = "blue")) +
   theme_custom() +
   labs(title = "",
        x = "NUTM1 Expression\nLog2(TPM+1)",
        y = "PRAME Expression\nLog2(TPM+1)") +
   theme(legend.position = "none",
-        axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12))
+        axis.text.x = element_text(size = 11, color = 'black'),
+        axis.text.y = element_text(size = 11, color = 'black'))
 
-#ggsave("work/results/tempus/fig3B_densityscatter.pdf", fig3B_densityscatter, units = 'in', width = 7, height = 5)
+#ggsave("GitHub/PRAME_in_NUT_Carcinoma/results/tempus/high_low_cohort_density_scatter.pdf", high_low_densityscatter, units = 'in', width = 3.15, height = 3, dpi = 300)
 
 
 # Boxplot Fig3C
@@ -258,12 +257,12 @@ fig3C_box <- plt_df %>%
   scale_y_continuous(expand = expansion(add = c(tenth_RANGE * 1.2, tenth_RANGE * 0.5))) +
   theme_custom() +
   theme(legend.postition = "none",
-        axis.text.x = element_text(size = 12),
+        axis.text.x = element_text(size = 12, angle = 45, hjust = 1, vjust = 1),
         axis.text.y = element_text(size = 12)) +
   labs(x = "",
        y = "PRAME Log2(TPM+1)")
 
-#ggsave('work/results/tempus/fig3C_boxplot.pdf', fig3C_box, units = 'in', width = 7, height = 5)
+#ggsave('GitHub/PRAME_in_NUT_Carcinoma/results/tempus/PRAME_expression_fusion_partner_boxplot.pdf', fig3C_box, units = 'in', width = 7, height = 5)
 
 # Tissue Expression Fig3D
 
@@ -305,13 +304,13 @@ dot_plot <- ggplot(plt_df) +
   labs(y = "PRAME Expression\nLog2(TPM+1)", x = NULL) +
   theme(
     legend.position = "none",
-    axis.text.y = element_text(size = 12),
-    axis.text.x = element_text(size = 12, angle = 45, hjust = 1)
+    axis.text.y = element_text(size = 12, color = 'black'),
+    axis.text.x = element_text(size = 12, angle = 45, hjust = 1, color = 'black')
   ) +
   scale_x_discrete(labels = c("(PNS) Peripheral nervous system, NOS" = "(PNS), NOS"))
 
 grid <- plot_grid(bar_plot, dot_plot, ncol = 1, align = "v", rel_heights = c(1, 3))
-#ggsave("work/results/tempus/fig3D_tissue_expression.pdf", grid, units = 'in', width = 8, height = 4)
+#ggsave("GitHub/PRAME_in_NUT_Carcinoma/results/tempus/PRAME_high_low_expression_by_tissue_site.pdf", grid, units = 'in', width = 8, height = 3.8)
 
 # Fusion Counts Supplemental Figure S2A
 

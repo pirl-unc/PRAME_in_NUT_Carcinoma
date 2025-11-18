@@ -5,13 +5,19 @@ library(UpSetR)
 library(tidyr)
 
 
+# read in data ------------------------------------------------------------
+
 # MS intensity of peptides
 
-ctas <- read.csv('work/data/cell_lists/cancer-testis-antigens.csv')
+ctas <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/cell_lists/cancer-testis-antigens.csv')
 
-ms_set1 <- read.csv('work/data/shotgun_mass_spec/cell_lines_1015_797_14169_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
-ms_set2 <- read.csv('work/data/shotgun_mass_spec/cell_lines_PER403_JCM1_PDX_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
+ms_set1 <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/shotgun_mass_spec/cell_lines_1015_797_14169_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
+ms_set2 <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/shotgun_mass_spec/cell_lines_PER403_JCM1_PDX_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
 
+ms_target_single <- 
+ms_target_double <- 
+
+# look at shotgun MS data -------------------------------------------------
 
 # update NUTM1 gene name to be NUTM1 since it is currently differentiated by breakpoint but we don't need to know that for this purpose
 ms_set1$Gene_ID <- sub("NUTM1.*", "NUTM1", ms_set1$Gene_ID)
@@ -126,17 +132,23 @@ cta_peptides_long$log2Intensity <- log2(cta_peptides_long$intensity)
 cta_peptides_long$alpha <- ifelse(is.finite(cta_peptides_long$log2Intensity), 1, 0)
 cta_peptides_long$log2Intensity <- ifelse(is.finite(cta_peptides_long$log2Intensity), cta_peptides_long$log2Intensity, 0)
 
-gene_id_order <- c('PRAME','NUTM1','CTAGE1','MAGEA1','CT83','ACTL8')
+gene_id_order <- c('NUTM1','PRAME','CTAGE1','MAGEA1','CT83','ACTL8')
 cta_peptides_long$Gene_ID <- factor(cta_peptides_long$Gene_ID, levels = gene_id_order)
 cta_peptides_long <- cta_peptides_long %>%
   mutate(Peptide_Sequence = factor(Peptide_Sequence, 
                                    levels = unique(Peptide_Sequence[order(Gene_ID, Peptide_Sequence, decreasing=TRUE)])))
-samples_order <- c('PER-403', '1015','14169', 'JCM1', 'TC-797', 'PDX')
+samples_order <- c('TC-797', '1015','14169','PER-403', 'JCM1', 'PDX')
 cta_peptides_long$sample <- factor(cta_peptides_long$sample, levels = samples_order)
+cta_peptides_long$Peptide_Sequence <- factor(cta_peptides_long$Peptide_Sequence,
+                                             levels = rev(c('DVYENFRQW',
+                                                        'SLLQHLIGL','RLDQLLRHV', 'YLHARLREL',
+                                                        'AAFDGRHSQTL', 'RLVELAGQSLLK', 'PYLGQMINL', 'GLSNLTHVL', 'ALLPSLSHC', 'ALQSLLQHL',
+                                                        'KVLEYVIKV', 'KLVELEHTL', 'GPLRLSPLLPR','LPDGSRVEL')))
+
 
 ms_intensity <- ggplot(cta_peptides_long, aes(x = factor(sample), y = Peptide_Sequence)) +
   geom_point(aes(fill = log2Intensity, alpha = as.factor(alpha)), 
-             shape = 21, size = 4, stroke = 1,
+             shape = 21, size = 7, stroke = 1,
              show.legend = c(alpha = FALSE)) +  
   scale_x_discrete(position = "top") +
   scale_fill_gradient(low = "blue", high = "red", 
@@ -149,6 +161,10 @@ ms_intensity <- ggplot(cta_peptides_long, aes(x = factor(sample), y = Peptide_Se
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 12, color='black'),
         axis.text.x = element_text(size = 12, color='black'),
-        axis.text.y = element_text(size = 10, color='black')) +
+        axis.text.y = element_text(size = 12, color='black')) +
   labs(x = "", y = "Peptide", fill = "Log2(Intensity)")
+
+
+# look at targeted MS data ------------------------------------------------
+
 
