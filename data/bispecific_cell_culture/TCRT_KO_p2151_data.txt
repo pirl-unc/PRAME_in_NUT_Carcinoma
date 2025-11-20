@@ -1,4 +1,10 @@
 cell_line,E:T,T-Cells,peptide,luminescence
+10-15,0:1,None,No pulse,474313
+10-15,0:1,None,No pulse,484628
+10-15,0:1,None,No pulse,505491
+10-15,0:1,None,Puromycin,449.5
+10-15,0:1,None,Puromycin,647.5
+10-15,0:1,None,Puromycin,692.5
 10-15,1:1,TCR-T,No pulse,29849
 10-15,1:1,TCR-T,No pulse,32031
 10-15,1:1,TCR-T,No pulse,53078
@@ -47,6 +53,12 @@ cell_line,E:T,T-Cells,peptide,luminescence
 10-15,8:1,KO TCR,Pulse,315390
 10-15,8:1,KO TCR,Pulse,327184
 10-15,8:1,KO TCR,Pulse,300833
+14169,0:1,None,No pulse,515039
+14169,0:1,None,No pulse,417180
+14169,0:1,None,No pulse,522594
+14169,0:1,None,Puromycin,605
+14169,0:1,None,Puromycin,760
+14169,0:1,None,Puromycin,814
 14169,1:1,TCR-T,No pulse,19556
 14169,1:1,TCR-T,No pulse,14503
 14169,1:1,TCR-T,No pulse,28056
@@ -80,7 +92,7 @@ cell_line,E:T,T-Cells,peptide,luminescence
 14169,4:1,KO TCR,No pulse,490457
 14169,4:1,KO TCR,No pulse,469615
 14169,4:1,KO TCR,No pulse,490526
-14169,8:1,KO TCR,No pulse,329424
+14169,8;1,KO TCR,No pulse,329424
 14169,8:1,KO TCR,No pulse,272548
 14169,8:1,KO TCR,No pulse,386300
 14169,1:1,KO TCR,Pulse,632631
@@ -95,6 +107,12 @@ cell_line,E:T,T-Cells,peptide,luminescence
 14169,8:1,KO TCR,Pulse,430132
 14169,8:1,KO TCR,Pulse,468857
 14169,8:1,KO TCR,Pulse,435933
+TC-797,0:1,None,No pulse,1060630
+TC-797,0:1,None,No pulse,1163114
+TC-797,0:1,None,No pulse,1141046
+TC-797,0:1,None,Puromycin,1806
+TC-797,0:1,None,Puromycin,2038
+TC-797,0:1,None,Puromycin,2882
 TC-797,1:1,TCR-T,No pulse,506508
 TC-797,1:1,TCR-T,No pulse,494701
 TC-797,1:1,TCR-T,No pulse,533777
@@ -143,6 +161,12 @@ TC-797,4:1,KO TCR,Pulse,145269
 TC-797,8:1,KO TCR,Pulse,43921
 TC-797,8:1,KO TCR,Pulse,41298
 TC-797,8:1,KO TCR,Pulse,26127
+PER403,0:1,None,No pulse,341699
+PER403,0:1,None,No pulse,342368
+PER403,0:1,None,No pulse,346406
+PER403,0:1,None,Puromycin,455
+PER403,0:1,None,Puromycin,574
+PER403,0:1,None,Puromycin,625
 PER403,1:1,TCR-T,No pulse,596
 PER403,1:1,TCR-T,No pulse,604
 PER403,1:1,TCR-T,No pulse,529
@@ -176,7 +200,7 @@ PER403,2:1,KO TCR,No pulse,162090
 PER403,4:1,KO TCR,No pulse,70780
 PER403,4:1,KO TCR,No pulse,91737
 PER403,4:1,KO TCR,No pulse,96131
-PER403,8:1,KO TCR,No pulse,17566
+PER403,8;1,KO TCR,No pulse,17566
 PER403,8:1,KO TCR,No pulse,32766
 PER403,8:1,KO TCR,No pulse,49828
 PER403,1:1,KO TCR,Pulse,219357
@@ -191,6 +215,12 @@ PER403,4:1,KO TCR,Pulse,112328
 PER403,8:1,KO TCR,Pulse,59329
 PER403,8:1,KO TCR,Pulse,60097
 PER403,8:1,KO TCR,Pulse,47337
+JCM1,0:1,None,No pulse,406384
+JCM1,0:1,None,No pulse,422408
+JCM1,0:1,None,No pulse,415161
+JCM1,0:1,None,Puromycin,616
+JCM1,0:1,None,Puromycin,833
+JCM1,0:1,None,Puromycin,899
 JCM1,1:1,TCR-T,No pulse,199197
 JCM1,1:1,TCR-T,No pulse,206950
 JCM1,1:1,TCR-T,No pulse,211936
@@ -239,3 +269,15 @@ JCM1,4:1,KO TCR,Pulse,319390
 JCM1,8:1,KO TCR,Pulse,234393
 JCM1,8:1,KO TCR,Pulse,197061
 JCM1,8:1,KO TCR,Pulse,197373
+TCR-T Cells,1:0,TCR-T,None,-74
+TCR-T Cells,1:0,TCR-T,None,-25
+TCR-T Cells,1:0,TCR-T,None,153
+TCR-T Cells,2:0,TCR-T,None,-83
+TCR-T Cells,2:0,TCR-T,None,-58
+TCR-T Cells,2:0,TCR-T,None,92
+TCR-T Cells,4:0,TCR-T,None,-42
+TCR-T Cells,4:0,TCR-T,None,134
+TCR-T Cells,4:0,TCR-T,None,78
+TCR-T Cells,8:0,TCR-T,None,109
+TCR-T Cells,8:0,TCR-T,None,29
+TCR-T Cells,8:0,TCR-T,None,-25

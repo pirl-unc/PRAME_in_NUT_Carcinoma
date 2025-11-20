@@ -12,7 +12,7 @@ bispecific_time_data <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/bispecific_
 bispecific_data_2 <- read.csv('work/data/bispecific_cell_culture/nut_cell_lines_bispecific_lumiescence_expt2.csv', check.names = F)
 bispecific_data_2 <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/bispecific_cell_culture/nut_cell_lines_bispecific_lumiescence_expt2.csv', check.names = F)
 conc <- read.csv('work/data/bispecific_cell_culture/PRAME_cytotoxicity_concentration_gradient.csv', check.names = F, sep=',')
-tcr_t <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/bispecific_cell_culture/TCRT_KO_p2151_data.csv', check.names = F)
+tcr_t <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/bispecific_cell_culture/TCRT_KO_p2151_data.txt', check.names = F)
 
 # Panel B Peptide required for T Cell Killing  ---------------------------
 u_avg <- t2_data %>%
@@ -555,12 +555,13 @@ ggplot(bispecific_data_2_mean_summary,
 # NUT carcinoma cell viability after TCR-T treatment --------------------------------------------------------------
 
 tcr_control_summary <- tcr_t %>% 
-  filter(`T-Cells` == 'KO TCR') %>%
+  filter(`T-Cells` == 'KO TCR', !`E:T` %in% c('0:1','1:0','2:0','4:0','8:0')) %>%
   group_by(cell_line, `E:T`, peptide) %>%
   summarise(mean = mean(luminescence),
             .groups = 'drop')
 
 tcr_t_mean <- tcr_t %>% 
+  filter(cell_line != 'TCR-T Cells') %>% 
   filter(`T-Cells` == 'TCR-T') %>% 
   left_join(tcr_control_summary, by = c('cell_line', 'E:T', 'peptide'))
 
@@ -632,28 +633,42 @@ t_test_results_tcr <- tcr_t %>%
 tcr_t_mean_summary <- tcr_t %>% 
   group_by(cell_line, `E:T`, `T-Cells`, peptide) %>% 
   summarise(mean_lum = mean(luminescence),
-            sd_lum = sd(luminescence))
+            sd_lum = sd(luminescence)) %>% 
+  ungroup()
 
 tcr_t_mean_summary$cell_line <- factor(tcr_t_mean_summary$cell_line,
-                                       levels = c('TC-797', '10-15', '14169','PER403','JCM1'))
+                                       levels = c('TC-797', '10-15', '14169','PER403','JCM1', 'TCR-T Cells'))
 
 tcr_t_mean_summary <- tcr_t_mean_summary %>% 
   mutate(sample = paste0(`E:T`, "_", `T-Cells`, '_', peptide))
 tcr_t_mean_summary <- tcr_t_mean_summary %>% 
   mutate(color_col = paste0(`T-Cells`, '_' , peptide))
 
+tcr_t_mean_summary$color_col <- factor(tcr_t_mean_summary$color_col, levels = c('None_No pulse', 'None_Puromycin',
+                                                                      'KO TCR_No pulse', 'KO TCR_Pulse',
+                                                                      'TCR-T_No pulse', 'TCR-T_Pulse',
+                                                                      'TCR-T_None'))
+tcr_t_mean_summary <- tcr_t_mean_summary %>%
+  group_by(cell_line) %>%
+  mutate(sample = factor(sample, levels = unique(sample)))
+
 ggplot(tcr_t_mean_summary,
-       aes(x = sample, y = mean_lum, fill = as.factor(color_col))) +
+       aes(x = as.factor(sample), y = mean_lum, fill = as.factor(color_col))) +
   geom_col(width = 0.7) +
   geom_errorbar(aes(ymin = mean_lum - sd_lum,
                     ymax = mean_lum + sd_lum),
                 width = 0.2) +
-  facet_grid(~cell_line) +
+  facet_wrap(~cell_line, drop = TRUE, nrow = 1, scales = "free_x") +
+  scale_y_break(c(760000,1100000)) +
   theme_classic() +
-  scale_fill_manual(values = c('KO TCR_No pulse' = 'cornflowerblue','KO TCR_Pulse'  = '#6633CC' ,
-                               'TCR-T_No pulse' = '#FF9933', 'TCR-T_Pulse' = '#CC6600'),
-                    labels = c('KO TCR_No pulse' = 'TCR Null', 'KO TCR_Pulse' = 'TCR Null + Peptide Pulse',
-                               'TCR-T_No pulse' = 'TCR-T', 'TCR-T_Pulse' = 'TCR-T + Peptide Pulse')) +
+  scale_fill_manual(values = c('None_No pulse' = 'grey40', 'None_Puromycin' = '#993300',
+                               'KO TCR_No pulse' = 'cornflowerblue','KO TCR_Pulse'  = '#6633CC' ,
+                               'TCR-T_No pulse' = '#FF9933', 'TCR-T_Pulse' = '#FF6600',
+                               'TCR-T_None' = '#669966'),
+                    labels = c('None_No pulse' = 'Tumor Cells Only', 'None_Puromycin' = 'Tumor Cells Only + Puromycin',
+                               'KO TCR_No pulse' = 'TCR Null', 'KO TCR_Pulse' = 'TCR Null + Peptide Pulse',
+                               'TCR-T_No pulse' = 'TCR-T', 'TCR-T_Pulse' = 'TCR-T + Peptide Pulse',
+                               'TCR-T_None' = 'TCR-T Cells Only')) +
   xlab('') + 
   ylab('Luminescence (RLU)') +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, color = 'black'),
