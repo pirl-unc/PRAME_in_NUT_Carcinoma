@@ -8,10 +8,10 @@ library(here)
 
 # load data ---------------------------------------------------------------
 # gene x sample tpm expression df
-gene_tpm_all <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/nextflow_nut_healthy_lung_RNA/star_salmon/salmon.merged.gene_tpm.tsv', sep = "\t", check.names = F) %>% select(-gene_id)
+gene_tpm_all <- read.csv('work/data/nextflow_nut_healthy_lung_RNA/star_salmon/salmon.merged.gene_tpm.tsv', sep = "\t", check.names = F) %>% select(-gene_id)
 
 # curated set of CTAs
-cta_df <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/cell_lists/cancer-testis-antigens.csv')
+cta_df <- read.csv('work/data/cell_lists/cancer-testis-antigens.csv')
 CTAs <- cta_df$Symbol
 
 # sum together genes with same names
@@ -39,7 +39,7 @@ cell_lines <- factor(
 
 col_fun <- colorRamp2(c(0, max(gene_tpm_nc_cta_filtered)), c("blue", "red"))
 
-pdf(file = 'GitHub/PRAME_in_NUT_Carcinoma/results/rna_seq/nut_cell_lines/rna_seq_cell_lines_pdx_top_cta_expression.pdf', width = 6.15, height = 3.11)
+pdf(file = 'work/results/rna_seq/nut_cell_lines/rna_seq_cell_lines_pdx_top_cta_expression.pdf', width = 6.15, height = 3.11)
 heatmap_rna_nc_cell_lines <- Heatmap(as.matrix(gene_tpm_nc_cta_filtered),
         name = 'Log2(TPM)',
         col = col_fun,

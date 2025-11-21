@@ -2,7 +2,7 @@ library(here)
 library(tidyverse)
 
 
-tma <- read.csv('~/work/data/tma/TMA_PRAME_C_French.csv')
+tma <- read.csv('work/data/tma/TMA_PRAME_C_French.csv')
 tma$PRAME <- factor(tma$PRAME, levels = c('3', '2', '1', '0'))
 
 prame_labels <- c("0" = "Negative", "1" = "1-25%", "2" = "26-75%", "3" = "≥ 75%")

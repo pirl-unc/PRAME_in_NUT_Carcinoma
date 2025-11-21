@@ -73,7 +73,7 @@ theme_custom <- function(base_size = 12, ticks = TRUE, ylab = TRUE, xlab = TRUE,
 
 # Load data
 
-df <- read_csv("GitHub/PRAME_in_NUT_Carcinoma/data/tempus_data/UNC_NUT_tempus_data.csv")
+df <- read_csv("work/data/tempus_data/UNC_NUT_tempus_data.csv")
 genelist <- colnames(df)[-(1:4)]
 
 # Table 1
@@ -195,7 +195,7 @@ high_low_densityscatter <- ggplot(plt_df, aes(x = NUTM1, y = PRAME, color = PRAM
         axis.text.x = element_text(size = 11, color = 'black'),
         axis.text.y = element_text(size = 11, color = 'black'))
 
-#ggsave("GitHub/PRAME_in_NUT_Carcinoma/results/tempus/high_low_cohort_density_scatter.pdf", high_low_densityscatter, units = 'in', width = 3.15, height = 3, dpi = 300)
+#ggsave("work/results/tempus/high_low_cohort_density_scatter.pdf", high_low_densityscatter, units = 'in', width = 3.15, height = 3, dpi = 300)
 
 
 # Boxplot Fig3C
@@ -262,7 +262,7 @@ fig3C_box <- plt_df %>%
   labs(x = "",
        y = "PRAME Log2(TPM+1)")
 
-#ggsave('GitHub/PRAME_in_NUT_Carcinoma/results/tempus/PRAME_expression_fusion_partner_boxplot.pdf', fig3C_box, units = 'in', width = 7, height = 5)
+#ggsave('work/results/tempus/PRAME_expression_fusion_partner_boxplot.pdf', fig3C_box, units = 'in', width = 7, height = 5)
 
 # Tissue Expression Fig3D
 
@@ -310,7 +310,7 @@ dot_plot <- ggplot(plt_df) +
   scale_x_discrete(labels = c("(PNS) Peripheral nervous system, NOS" = "(PNS), NOS"))
 
 grid <- plot_grid(bar_plot, dot_plot, ncol = 1, align = "v", rel_heights = c(1, 3))
-#ggsave("GitHub/PRAME_in_NUT_Carcinoma/results/tempus/PRAME_high_low_expression_by_tissue_site.pdf", grid, units = 'in', width = 8, height = 3.8)
+#ggsave("work/results/tempus/PRAME_high_low_expression_by_tissue_site.pdf", grid, units = 'in', width = 8, height = 3.8)
 
 # Fusion Counts Supplemental Figure S2A
 

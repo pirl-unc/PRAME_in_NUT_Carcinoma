@@ -8,11 +8,10 @@ library(ggplot2)
 # read in data ------------------------------------------------------------
 
 t2_data  <- read.csv('work/data/bispecific_cell_culture/PRAME_T2_peptide_pulse.txt', check.names = F, sep = '\t')
-bispecific_time_data <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/bispecific_cell_culture/nut_cell_lines_bispecific_luminescence.csv', check.names = F)
+bispecific_time_data <- read.csv('work/data/bispecific_cell_culture/nut_cell_lines_bispecific_luminescence.csv', check.names = F)
 bispecific_data_2 <- read.csv('work/data/bispecific_cell_culture/nut_cell_lines_bispecific_lumiescence_expt2.csv', check.names = F)
-bispecific_data_2 <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/bispecific_cell_culture/nut_cell_lines_bispecific_lumiescence_expt2.csv', check.names = F)
 conc <- read.csv('work/data/bispecific_cell_culture/PRAME_cytotoxicity_concentration_gradient.csv', check.names = F, sep=',')
-tcr_t <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/bispecific_cell_culture/TCRT_KO_p2151_data.txt', check.names = F)
+tcr_t <- read.csv('work/data/bispecific_cell_culture/TCRT_KO_p2151_data.txt', check.names = F)
 
 # Panel B Peptide required for T Cell Killing  ---------------------------
 u_avg <- t2_data %>%
@@ -327,8 +326,9 @@ time_data_long_summary$sample <- factor(time_data_long_summary$sample,
 time_data_long_summary$cell_line <- factor(time_data_long_summary$cell_line,
                                                    levels = c('797','1015','14169','H460'))
 
+
 ggplot(time_data_long_summary,
-       aes(x = sample, y = mean_lum, fill = color_labs)) +
+       aes(x = sample, y = mean_lum, fill = bispecific_condition)) +
   geom_col(width = 0.7) +
   geom_errorbar(aes(ymin = mean_lum - sd_lum,
                     ymax = mean_lum + sd_lum),
@@ -337,39 +337,37 @@ ggplot(time_data_long_summary,
              labeller = labeller(
                sample = c(
                  "tumor_only_no_bispecific_48" = 'Tumor Cells Only',
-                 "tumor_only_bispecific_48" = 'Tumor Cells Only + bispecific',
+                 "tumor_only_bispecific_48" = '',
                  "E:T1_no_bispecific_48" = '1:1 E:T',
-                 "E:T1_bispecific_48" = '1:1 E:T + bispecific',
+                 "E:T1_bispecific_48" = '',
                  "E:T5_no_bispecific_48" = '5:1 E:T',
-                 "E:T5_bispecific_48" = '5:1 E:T + bispecific',
+                 "E:T5_bispecific_48" = '',
                  "tumor_only_no_bispecific_96" = 'Tumor Cells Only',
                  "tumor_only_bispecific_96" = 'Tumor Cells Only + bispecific',
                  "E:T1_no_bispecific_96" = '1:1 E:T',
-                 "E:T1_bispecific_96" = '1:1 E:T + bispecific',
+                 "E:T1_bispecific_96" = '',
                  "E:T5_no_bispecific_96" = '5:1 E:T',
-                 "E:T5_bispecific_96" = '5:1 E:T + bispecific'
+                 "E:T5_bispecific_96" = ''
                )
              )) +
   #scale_y_break(c(50000, 85000)) +
   theme_classic() +
-  scale_fill_manual(values = c('#993366', '#CCCFFF','#669999', '#FF9933','#339966','#FF6666'),
-    labels = c('no_bispecific_tumor_only' = 'Tumor Cells Only', 'bispecific_tumor_only' = 'Tumor Cells Only + PRAME bispecific',
-                               'no_bispecific_E:T1' = '1:1 E:T','bispecific_E:T1' = '1:1 E:T + PRAME bispecific',
-                               'no_bispecific_E:T5' = '5:1 E:T', 'bispecific_E:T5' = '5:1 E:T + PRAME bispecific')) +
+  scale_fill_manual(values = c('bispecific' = '#FF9933', 'no_bispecific' = "#009966"),
+    labels = c('bispecific' = 'PRAME bispecific', 'no_bispecific' = 'No bispecific')) +
   scale_x_discrete(
     labels = c(
       "tumor_only_no_bispecific_48" = 'Tumor Cells',
-      "tumor_only_bispecific_48" = 'Tumor Cells + bispecific',
+      "tumor_only_bispecific_48" = '',
       "E:T1_no_bispecific_48" = '1:1 E:T',
-      "E:T1_bispecific_48" = '1:1 E:T + bispecific',
+      "E:T1_bispecific_48" = '',
       "E:T5_no_bispecific_48" = '5:1 E:T',
-      "E:T5_bispecific_48" = '5:1 E:T + bispecific',
+      "E:T5_bispecific_48" = '',
       "tumor_only_no_bispecific_96" = 'Tumor Cells',
-      "tumor_only_bispecific_96" = 'Tumor Cells + bispecific',
+      "tumor_only_bispecific_96" = '',
       "E:T1_no_bispecific_96" = '1:1 E:T',
-      "E:T1_bispecific_96" = '1:1 E:T + bispecific',
+      "E:T1_bispecific_96" = '',
       "E:T5_no_bispecific_96" = '5:1 E:T',
-      "E:T5_bispecific_96" = '5:1 E:T + bispecific'
+      "E:T5_bispecific_96" = ''
     )
   ) +
   xlab('') + 
@@ -386,6 +384,7 @@ ggplot(time_data_long_summary,
 
 # Calculate the mean and standard deviation of each "no bispecific" condition
 non_specific_control_summary <- bispecific_data_2 %>%
+  filter(!culture_condition %in% c('1:0', '5:0')) %>% 
   filter(bispecific_condition == "None") %>%
   group_by(culture_condition, cell_line) %>%
   summarise(mean = mean(relative_luminescence), 
@@ -427,7 +426,8 @@ ggplot(nonspecific_data_summary, aes(x = as.factor(culture_condition), y = mean_
                  "14169" = "14169",
                  "10-15" = "10-15",
                  "TC-797" = "TC-797",
-                 "JCM1" = "JCM1"
+                 "JCM1" = "JCM1",
+                 "T-Cells" = 'T-Cells'
                )
              )) +
   theme_bw() +
@@ -457,9 +457,10 @@ ggplot(nonspecific_data_summary, aes(x = as.factor(culture_condition), y = mean_
                      labels = c(expression(alpha*'HTLV-1 bispecific'),
                                 expression(alpha*'PRAME bispecific')))
 
-
+# perform t-tests between bispecific and non-bispecific conditions for each experimental conditions
 t_test_results_PRAME_bispecific_2 <- bispecific_data_2 %>%
-  filter(bispecific_condition != 'NON-SPECIFIC') %>% 
+  filter(!culture_condition %in% c('1:0 E:T','5:0 E:T')) %>% 
+  filter(!bispecific_condition %in% c('NON-SPECIFIC', 'Puromycin')) %>% 
   group_by(cell_line, culture_condition) %>%
   summarise(
     p_value = t.test(relative_luminescence ~ bispecific_condition)$p.value,
@@ -467,12 +468,15 @@ t_test_results_PRAME_bispecific_2 <- bispecific_data_2 %>%
   )
 
 t_test_results_HTLV_bispecific_2 <- bispecific_data_2 %>%
-  filter(bispecific_condition != 'PRAME', culture_condition != '0:1 E:T') %>% 
+  filter(!bispecific_condition %in% c('PRAME', 'Puromycin'), !culture_condition %in% c('0:1 E:T', '1:0 E:T','5:0 E:T')) %>% 
   group_by(cell_line, culture_condition) %>%
   summarise(
     p_value = t.test(relative_luminescence ~ bispecific_condition)$p.value,
     .groups = "drop"
   )
+
+#### format data to be able to plot the raw values as a bar chart with aaallll conditions present
+#### so leave in controls that we had filtered out above
 
 bispecific_data_2_mean_summary <- bispecific_data_2 %>% 
   group_by(cell_line, culture_condition, bispecific_condition) %>% 
@@ -482,17 +486,20 @@ bispecific_data_2_mean_summary <- bispecific_data_2 %>%
 bispecific_data_2_mean_summary <- bispecific_data_2_mean_summary %>% 
   mutate(sample = paste0(culture_condition, '_', bispecific_condition))
 
+bispecific_data_2_mean_summary$bispecific_condition <-  factor(bispecific_data_2_mean_summary$bispecific_condition,
+                                                               levels = c('None', 'Puromycin','PRAME','NON-SPECIFIC', 'T-Cells'))
 
 bispecific_data_2_mean_summary$sample <- factor(bispecific_data_2_mean_summary$sample,
-                                                levels = c("0:1 E:T_None", "0:1 E:T_PRAME",
+                                                levels = c("0:1 E:T_None","0:1 E:T_Puromycin", "0:1 E:T_PRAME",
                                                            "1:1 E:T_None", "1:1 E:T_NON-SPECIFIC", "1:1 E:T_PRAME",
-                                                           "5:1 E:T_None", "5:1 E:T_NON-SPECIFIC", "5:1 E:T_PRAME"))
+                                                           "5:1 E:T_None", "5:1 E:T_NON-SPECIFIC", "5:1 E:T_PRAME",
+                                                           "1:0 E:T_T-Cells", "5:0 E:T_T-Cells"))
 
 bispecific_data_2_mean_summary$cell_line <- factor(bispecific_data_2_mean_summary$cell_line,
-                                                   levels = c('TC-797', '10-15', '14169','PER403','JCM1'))
+                                                   levels = c('TC-797', '10-15', '14169','PER403','JCM1', 'T-Cells'))
 
 ggplot(bispecific_data_2_mean_summary,
-       aes(x = sample, y = mean_lum, fill = sample)) +
+       aes(x = sample, y = mean_lum, fill = bispecific_condition)) +
   geom_col(width = 0.7) +
   geom_errorbar(aes(ymin = mean_lum - sd_lum,
                     ymax = mean_lum + sd_lum),
@@ -507,40 +514,36 @@ ggplot(bispecific_data_2_mean_summary,
         axis.text.y = element_text(color = 'black'))
 
 
+
 ggplot(bispecific_data_2_mean_summary,
-       aes(x = sample, y = mean_lum, fill = sample)) +
+       aes(x = sample, y = mean_lum, fill = bispecific_condition)) +
   geom_col(width = 0.7) +
   geom_errorbar(aes(ymin = mean_lum - sd_lum,
                     ymax = mean_lum + sd_lum),
                 width = 0.2) +
-  facet_grid(~cell_line, labeller = labeller( 
-               sample = c(
-    "0:1 E:T_None" = 'Tumor Cells',
-    "0:1 E:T_PRAME" = 'Tumor Cells + PRAME bispecific',
-    "1:1 E:T_None" = '1:1 E:T',
-    "1:1 E:T_NON-SPECIFIC" = '1:1 E:T + HTLV-1 bispecific',
-    "1:1 E:T_PRAME" = '1:1 E:T + PRAME bispecific',
-    "5:1 E:T_None" = '5:1 E:T', 
-    "5:1 E:T_NON-SPECIFIC" = '5:1 E:T + HTLV-1 bispecific',
-    "5:1 E:T_PRAME" = '5:1 E:T + PRAME bispecific'
-  )
-  )) +
+  facet_grid(~cell_line, scales = "free_x") +
   theme_classic() +
-  scale_fill_manual(values = c('#993366', '#CCCFFF','#669999','#FF3333', '#FF9933','#339966', '#3366FF', '#FF6666'),
-                    labels = c("0:1 E:T_None" = 'Tumor Cells Only', "0:1 E:T_PRAME" = 'Tumor Cells Only + PRAME bispecific',
-                               "1:1 E:T_None" = '1:1 E:T', "1:1 E:T_NON-SPECIFIC" = '1:1 E:1 + HTLV-1 bispecific', "1:1 E:T_PRAME" = '1:1 E:T + PRAME bispecific',
-                               "5:1 E:T_None" = '5:1 E:T', "5:1 E:T_NON-SPECIFIC" = '5:1 E:T + HTLV-1 bispecific', "5:1 E:T_PRAME" = '5:1 E:T PRAME bispecific')) +
+  scale_fill_manual(values = c("None" = 'grey40', 'Puromycin' = '#993300', "NON-SPECIFIC" = '#669999', 'PRAME' = '#FF9933', "T-Cells" = "#009966"),
+                    labels = c("None" = "Tumor Cells Only",
+                               "Puromycin" = "Tumor Cells Only + Puromycin",
+                               "PRAME" = "PRAME bispecific",
+                               "NON-SPECIFIC" = "HTLV-1 bispecific",
+                               "T-Cells" = 'T-Cells Only')
+                    ) +
   xlab('') + 
   scale_x_discrete(
     labels = c(
-      "0:1 E:T_None" = 'Tumor Cells',
-      "0:1 E:T_PRAME" = 'Tumor Cells + PRAME bispecific',
-      "1:1 E:T_None" = '1:1 E:T',
-      "1:1 E:T_NON-SPECIFIC" = '1:1 E:T + HTLV-1 bispecific',
-      "1:1 E:T_PRAME" = '1:1 E:T + PRAME bispecific',
-      "5:1 E:T_None" = '5:1 E:T', 
-      "5:1 E:T_NON-SPECIFIC" = '5:1 E:T + HTLV-1 bispecific',
-      "5:1 E:T_PRAME" = '5:1 E:T + PRAME bispecific'
+      "0:1 E:T_None" = '',
+      "0:1 E:T_Puromycin" = 'Tumor Cells Only',
+      "0:1 E:T_PRAME" = '',
+      "1:1 E:T_None" = '',
+      "1:1 E:T_NON-SPECIFIC" = '1:1 E:T',
+      "1:1 E:T_PRAME" = '',
+      "5:1 E:T_None" = '', 
+      "5:1 E:T_NON-SPECIFIC" = '5:1 E:T',
+      "5:1 E:T_PRAME" = '',
+      "1:0 E:T_None" = '1:0',
+      "5:0 E:T_None" = '5:0'
     )
   ) +
   ylab('Luminescence (RLU)') +

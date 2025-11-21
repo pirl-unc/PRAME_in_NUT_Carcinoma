@@ -9,10 +9,9 @@ library(tidyr)
 
 # MS intensity of peptides
 
-ctas <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/cell_lists/cancer-testis-antigens.csv')
-
-ms_set1 <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/shotgun_mass_spec/cell_lines_1015_797_14169_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
-ms_set2 <- read.csv('GitHub/PRAME_in_NUT_Carcinoma/data/shotgun_mass_spec/cell_lines_PER403_JCM1_PDX_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
+ctas <- read.csv('work/data/cell_lists/cancer-testis-antigens.csv')
+ms_set1 <- read.csv('work/data/immunopeptidomics_mass_spec/cell_lines_1015_797_14169_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
+ms_set2 <- read.csv('work/data/immunopeptidomics_mass_spec/cell_lines_PER403_JCM1_PDX_biognosys_intensity_results.csv', na.strings = c("", "NA", "#N/A"), check.names = F)
 
 # look at shotgun MS data -------------------------------------------------
 
